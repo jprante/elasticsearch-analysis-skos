@@ -1,7 +1,6 @@
 # SKOS analysis plugin for Elasticsearch
 
-This the SKOS support for Solr, originally written by Wolfgang Haslhofer,
-ported to Elasticsearch by Jörg Prante.
+This is the SKOS support for Lucene, originally written by Wolfgang Haslhofer for Lucene and Solr, ported to Elasticsearch by Jörg Prante.
 
 For more information about the original version, please see https://github.com/behas/lucene-skos
 
@@ -11,7 +10,7 @@ The [Simple Knowledge Organization System (SKOS)][skos] is a model for expressin
 
 ## SKOS analysis
 
-SKOS for Elasticsearch is an analyzer plugin. It takes existing SKOS concepts schemes and performs term expansion for given documents and/or queries.
+SKOS for [Elasticsearch][elasticsearch] is an analyzer plugin. It takes existing SKOS concepts schemes and performs term expansion for given documents and/or queries.
 
 ## Features
 
@@ -148,3 +147,11 @@ The following settings parameters may be used in a filter of type **skos**
 	language - a language for the expansion
 	skosType - a string with space-separated terms of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED
 	
+
+[skos]: http://www.w3.org/TR/skos-primer/ "SKOS Primer"
+[rdf]: http://www.w3.org/TR/rdf-primer/ "RDF Primer"
+[ld]: http://www.w3.org/standards/semanticweb/data "Linked Data"
+[lucene]: http://lucene.apache.org/core/ "Apache Lucene"
+[solr]: http://lucene.apache.org/solr/ "Apache Solr"
+[elasticsearch]: http://elasticsearch.org "Elasticsearch"
+[jena]: http://jena.apache.org/ "Apache Jena"
