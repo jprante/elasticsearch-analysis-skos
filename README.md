@@ -1,6 +1,6 @@
 # SKOS analysis plugin for Elasticsearch
 
-This is the SKOS support for Lucene, originally written by Wolfgang Haslhofer for Lucene and Solr, ported to Elasticsearch by Jörg Prante.
+This is the SKOS support for Lucene, originally written by Bernhard Haslhofer for Lucene and Solr, ported to Elasticsearch by Jörg Prante.
 
 For more information about the original version, please see https://github.com/behas/lucene-skos
 
