@@ -1,0 +1,55 @@
+# Copyright 2010 Bernhard Haslhofer 
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/4>
+      a       skos:Concept ;
+      skos:altLabel "sluggish" , "apathic" ;
+      skos:prefLabel "lazy" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/2>
+      a       skos:Concept ;
+      skos:altLabel "leaps" , "hops" ;
+      skos:prefLabel "jumps" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/1>
+      a       skos:Concept ;
+      skos:altLabel "speedy" , "fast" ;
+      skos:prefLabel "quick" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/3>
+      a       skos:Concept ;
+      skos:altLabel "above" ;
+      skos:prefLabel "over" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/6>
+      a       skos:Concept ;
+      skos:altLabel "UN" ;
+      skos:prefLabel "United Nations" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/5>
+      a       skos:Concept ;
+      skos:altLabel "canine" , "pooch" ;
+      skos:prefLabel "dog" .
+      
+<http://www.cs.univie.ac.at/thesaurus/concept/7>
+    skos:altLabel "ram", "ewe" ;
+    skos:prefLabel "sheep" .
+
+<http://www.cs.univie.ac.at/thesaurus/concept/8>
+    skos:altLabel "kitty", "kitten" ;
+    skos:hiddenLabel "kity" .
