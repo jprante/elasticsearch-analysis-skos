@@ -24,9 +24,11 @@ The module supports the following use cases:
 
 The SKOS Analyzer Module can be installed like every other plugin for Elasticsearch.
 
+Please ensure you have at least Elasticsearch version **0.19.8** installed.
+
 In order to install the plugin, simply run
 
-	bin/plugin -install jprante/elasticsearch-analysis-skos/1.0.0
+	bin/plugin -install jprante/elasticsearch-analysis-skos/1.0.1
 
 
 ### Using the Elasticsearch SKOS plugin

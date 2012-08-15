@@ -20,6 +20,8 @@
                 <include>xerces:xercesImpl</include>
                 <include>xml-apis:xml-apis</include>
                 <include>commons-codec:commons-codec</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>org.slf4j:slf4j-log4j12</include>
             </includes>
         </dependencySet>
     </dependencySets>  
