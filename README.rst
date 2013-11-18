@@ -8,9 +8,9 @@ For more information about the original version, please see https://github.com/b
 
 What is SKOS?
 -------------
-The `Simple Knowledge Organization System (SKOS)`__ is a model for expressing controlled structured
+The `Simple Knowledge Organization System`_  (SKOS) is a model for expressing controlled structured
 vocabularies (classification schemes, thesauri, taxonomies, etc.).
-As an application of the `Resource Description Framework (RDF)`_,
+As an application of the `Resource Description Framework`_ (RDF),
 SKOS allows these vocabularies to be published as dereferenceable resources on the Web,
 which makes them easy to retrieve and reuse in applications. SKOS plays a major role in the
 ongoing `Linked Data`_ activities.
@@ -101,7 +101,7 @@ you can use URI-based expansion like in this demonstration::
 	            "filter": {
 	                "skosfilter" : {
 	                    "type": "skos",
-	                    "path" : "/tmp/indexdir",
+	                    "path" : "/tmp/indexdir/",
 	                    "skosFile": "ukat_examples.n3", 
 	                    "expansionType": "URI"
 	                }
@@ -174,16 +174,16 @@ Parameter overview
 
 The following settings parameters may be used in a filter of type **skos**::
 
-	`path` - a path for SKOS index directory
-	`skosFile` - the name of the skos file with suffix .n3, .rdf, .ttl, .zip (mandatory)
-	`expansionType` - wither URI or LABEL (mandatory)
-	`bufferSize` - a buffer size for the number of words that will be checked for expansion
-	`language` - a language for the expansion
-	`skosType` - a string with space-separated terms of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED
+	path - a path for SKOS index directory
+	skosFile - the name of the skos file with suffix .n3, .rdf, .ttl, .zip (mandatory)
+	expansionType - wither URI or LABEL (mandatory)
+	bufferSize - a buffer size for the number of words that will be checked for expansion
+	language - a language for the expansion
+	skosType - a string with space-separated terms of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED
 	
 
-.. _Simple Knowledge Organization System (SKOS): http://www.w3.org/TR/skos-primer/
-.. _Resource Description Framework (RDF):: http://www.w3.org/TR/rdf-primer/
+.. _Simple Knowledge Organization System: http://www.w3.org/TR/skos-primer/
+.. _Resource Description Framework: http://www.w3.org/TR/rdf-primer/
 .. _Linked Data: http://www.w3.org/standards/semanticweb/data
 .. _Apache Lucene: http://lucene.apache.org/core/
 .. _Apache Solr: http://lucene.apache.org/solr/
