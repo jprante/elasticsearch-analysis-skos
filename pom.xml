@@ -2,14 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <name>elasticsearch-analysis-skos</name>
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-analysis-skos</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
+
     <packaging>jar</packaging>
+
+    <name>elasticsearch-analysis-skos</name>
     <description>SKOS Analysis for ElasticSearch</description>
+
+    <url>http://github.com/jprante/elasticsearch-analysis-skos</url>
+
     <inceptionYear>2012</inceptionYear>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -17,6 +24,15 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <id>jprante</id>
+            <name>Jörg Prante</name>
+            <url>https://github.com/jprante</url>
+        </developer>
+    </developers>
+
     <scm>
         <connection>scm:git:git@github.com:jprante/elasticsearch-analysis-skos.git</connection>
         <developerConnection>scm:git:git@github.com:jprante/elasticsearch-analysis-skos.git
@@ -24,14 +40,45 @@
         <url>http://github.com/jprante/elasticsearch-analysis-skos</url>
     </scm>
 
-    <properties>
-        <elasticsearch.version>0.19.8</elasticsearch.version>
-    </properties>
+    <issueManagement>
+        <system>Github Issue Tracker</system>
+        <url>https://github.com/jprante/elasticsearch-analysis-skos/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-jprante-elasticsearch-plugins-elasticsearch-analysis-skos</id>
+            <name>jprante-elasticsearch-plugins-elasticsearch-analysis-skos</name>
+            <url>https://api.bintray.com/maven/jprante/elasticsearch-plugins/elasticsearch-analysis-skos</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
+        <repository>
+            <id>bintray-elasticsearch-plugins</id>
+            <url>http://dl.bintray.com/jprante/elasticsearch-plugins</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>github-release-repo</id>
+            <url>https://github.com/xbib/maven-repo/raw/master/releases</url>
+        </repository>
     </repositories>
 
+
+    <properties>
+        <github.global.server>github</github.global.server>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <elasticsearch.version>0.90.7</elasticsearch.version>
+    </properties>
+
     <dependencies>
+
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -39,6 +86,7 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-arq</artifactId>
@@ -46,33 +94,28 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.3.1</version>
+            <version>6.8.7</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.3.RC2</version>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3.RC2</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -80,16 +123,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.1</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                    <optimize>true</optimize>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgument>-Xlint:all,-serial,-path,-rawtypes,-unchecked</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12</version>
+                <version>2.15</version>
                 <configuration>
                     <includes>
                         <include>**/*Test.java</include>
@@ -99,7 +147,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>2.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -111,7 +159,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.build.directory}/releases/</outputDirectory>
@@ -125,6 +173,60 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <locale>en</locale>
+                    <linksource>true</linksource>
+                    <validateLinks>true</validateLinks>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <locales>en</locales>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.9</version>
+                <configuration>
+                    <message>Building site for ${project.version}</message>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site</phase>
                     </execution>
                 </executions>
             </plugin>
