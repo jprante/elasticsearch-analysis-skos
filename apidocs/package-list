@@ -1,0 +1,7 @@
+org.xbib.elasticsearch.index.analysis
+org.xbib.elasticsearch.index.analysis.skos
+org.xbib.elasticsearch.index.analysis.skos.engine
+org.xbib.elasticsearch.index.analysis.skos.engine.jena
+org.xbib.elasticsearch.index.analysis.skos.engine.mock
+org.xbib.elasticsearch.index.analysis.skos.tokenattributes
+org.xbib.elasticsearch.plugin.analysis

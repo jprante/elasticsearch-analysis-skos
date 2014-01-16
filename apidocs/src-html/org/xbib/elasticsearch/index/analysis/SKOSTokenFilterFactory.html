@@ -1,0 +1,169 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    package org.xbib.elasticsearch.index.analysis;<a name="line.2"></a>
+<FONT color="green">003</FONT>    <a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.io.IOException;<a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.LinkedList;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import java.util.List;<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    import org.apache.lucene.analysis.TokenStream;<a name="line.8"></a>
+<FONT color="green">009</FONT>    import org.apache.lucene.analysis.standard.StandardAnalyzer;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import org.apache.lucene.util.Version;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.elasticsearch.ElasticsearchIllegalArgumentException;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import org.elasticsearch.common.inject.Inject;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.elasticsearch.common.inject.assistedinject.Assisted;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import org.elasticsearch.common.settings.Settings;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import org.elasticsearch.index.Index;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import org.elasticsearch.index.analysis.AnalysisSettingsRequired;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import org.elasticsearch.index.settings.IndexSettings;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import org.xbib.elasticsearch.index.analysis.skos.SKOSLabelFilter;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.xbib.elasticsearch.index.analysis.skos.SKOSURIFilter;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    @AnalysisSettingsRequired<a name="line.28"></a>
+<FONT color="green">029</FONT>    public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>        private final ExpansionType expansionType;<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>        private final SKOSEngine skosEngine;<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+<FONT color="green">035</FONT>        private final SKOSType[] type;<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>        private final int bufferSize;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        @Inject<a name="line.39"></a>
+<FONT color="green">040</FONT>        public SKOSTokenFilterFactory(Index index, @IndexSettings Settings indexSettings,<a name="line.40"></a>
+<FONT color="green">041</FONT>                @Assisted String name, @Assisted Settings settings) {<a name="line.41"></a>
+<FONT color="green">042</FONT>            super(index, indexSettings, name, settings);<a name="line.42"></a>
+<FONT color="green">043</FONT>            String skosFile = settings.get("skosFile");<a name="line.43"></a>
+<FONT color="green">044</FONT>            String expansionTypeString = settings.get("expansionType");<a name="line.44"></a>
+<FONT color="green">045</FONT>            String bufferSizeString = settings.get("bufferSize");<a name="line.45"></a>
+<FONT color="green">046</FONT>            String languageString = settings.get("language");<a name="line.46"></a>
+<FONT color="green">047</FONT>            String typeString = settings.get("skosType");<a name="line.47"></a>
+<FONT color="green">048</FONT>            if (skosFile == null) {<a name="line.48"></a>
+<FONT color="green">049</FONT>                throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'skosFile' missing");<a name="line.49"></a>
+<FONT color="green">050</FONT>            }<a name="line.50"></a>
+<FONT color="green">051</FONT>            if (expansionTypeString == null) {<a name="line.51"></a>
+<FONT color="green">052</FONT>                throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'expansionType' missing");<a name="line.52"></a>
+<FONT color="green">053</FONT>            }<a name="line.53"></a>
+<FONT color="green">054</FONT>            if (skosFile.endsWith(".n3") || skosFile.endsWith(".rdf") || skosFile.endsWith(".ttl") || skosFile.endsWith(".zip")) {<a name="line.54"></a>
+<FONT color="green">055</FONT>                try {<a name="line.55"></a>
+<FONT color="green">056</FONT>                    skosEngine = SKOSEngineFactory.getSKOSEngine(Version.LUCENE_45,<a name="line.56"></a>
+<FONT color="green">057</FONT>                            settings.get("path", ""), skosFile,<a name="line.57"></a>
+<FONT color="green">058</FONT>                            languageString != null ? languageString.split(" ") : null);<a name="line.58"></a>
+<FONT color="green">059</FONT>                } catch (IOException e) {<a name="line.59"></a>
+<FONT color="green">060</FONT>                    logger.error(e.getMessage(), e);<a name="line.60"></a>
+<FONT color="green">061</FONT>                    throw new ElasticsearchIllegalArgumentException("could not instantiate SKOS engine", e);<a name="line.61"></a>
+<FONT color="green">062</FONT>                }<a name="line.62"></a>
+<FONT color="green">063</FONT>            } else {<a name="line.63"></a>
+<FONT color="green">064</FONT>                throw new ElasticsearchIllegalArgumentException("Allowed file suffixes are: .n3 (N3), .rdf (RDF/XML), .ttl (Turtle) and .zip (zip)");<a name="line.64"></a>
+<FONT color="green">065</FONT>            }<a name="line.65"></a>
+<FONT color="green">066</FONT>            if (expansionTypeString.equalsIgnoreCase(ExpansionType.LABEL.toString())) {<a name="line.66"></a>
+<FONT color="green">067</FONT>                expansionType = ExpansionType.LABEL;<a name="line.67"></a>
+<FONT color="green">068</FONT>            } else {<a name="line.68"></a>
+<FONT color="green">069</FONT>                expansionType = ExpansionType.URI;<a name="line.69"></a>
+<FONT color="green">070</FONT>            }<a name="line.70"></a>
+<FONT color="green">071</FONT>            if (bufferSizeString != null) {<a name="line.71"></a>
+<FONT color="green">072</FONT>                bufferSize = Integer.parseInt(bufferSizeString);<a name="line.72"></a>
+<FONT color="green">073</FONT>                if (bufferSize &lt; 1) {<a name="line.73"></a>
+<FONT color="green">074</FONT>                    throw new ElasticsearchIllegalArgumentException("The property 'bufferSize' must be a positive (small) integer");<a name="line.74"></a>
+<FONT color="green">075</FONT>                }<a name="line.75"></a>
+<FONT color="green">076</FONT>            } else {<a name="line.76"></a>
+<FONT color="green">077</FONT>                bufferSize = 4;<a name="line.77"></a>
+<FONT color="green">078</FONT>            }<a name="line.78"></a>
+<FONT color="green">079</FONT>            List&lt;SKOSType&gt; types = new LinkedList&lt;SKOSType&gt;();<a name="line.79"></a>
+<FONT color="green">080</FONT>            if (typeString != null) {<a name="line.80"></a>
+<FONT color="green">081</FONT>                for (String s : typeString.split(" ")) {<a name="line.81"></a>
+<FONT color="green">082</FONT>                    try {<a name="line.82"></a>
+<FONT color="green">083</FONT>                        SKOSType st = SKOSType.valueOf(s.toUpperCase());<a name="line.83"></a>
+<FONT color="green">084</FONT>                        if (st != null) {<a name="line.84"></a>
+<FONT color="green">085</FONT>                            types.add(st);<a name="line.85"></a>
+<FONT color="green">086</FONT>                        }<a name="line.86"></a>
+<FONT color="green">087</FONT>                    } catch (IllegalArgumentException e) {<a name="line.87"></a>
+<FONT color="green">088</FONT>                        throw new ElasticsearchIllegalArgumentException("The property 'skosType' must be one of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED");<a name="line.88"></a>
+<FONT color="green">089</FONT>                    }<a name="line.89"></a>
+<FONT color="green">090</FONT>                }<a name="line.90"></a>
+<FONT color="green">091</FONT>            }<a name="line.91"></a>
+<FONT color="green">092</FONT>            type = types.toArray(new SKOSType[types.size()]);<a name="line.92"></a>
+<FONT color="green">093</FONT>        }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        @Override<a name="line.95"></a>
+<FONT color="green">096</FONT>        public TokenStream create(TokenStream tokenStream) {<a name="line.96"></a>
+<FONT color="green">097</FONT>            if (expansionType.equals(ExpansionType.LABEL)) {<a name="line.97"></a>
+<FONT color="green">098</FONT>                return new SKOSLabelFilter(tokenStream, skosEngine, new StandardAnalyzer(Version.LUCENE_45), bufferSize, type);<a name="line.98"></a>
+<FONT color="green">099</FONT>            } else {<a name="line.99"></a>
+<FONT color="green">100</FONT>                return new SKOSURIFilter(tokenStream, skosEngine, new StandardAnalyzer(Version.LUCENE_45), type);<a name="line.100"></a>
+<FONT color="green">101</FONT>            }<a name="line.101"></a>
+<FONT color="green">102</FONT>        }<a name="line.102"></a>
+<FONT color="green">103</FONT>    }<a name="line.103"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
