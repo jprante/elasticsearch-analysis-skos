@@ -9,7 +9,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
-import org.elasticsearch.ElasticSearchIllegalArgumentException;
+import org.elasticsearch.ElasticsearchIllegalArgumentException;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
@@ -46,10 +46,10 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
         String languageString = settings.get("language");
         String typeString = settings.get("skosType");
         if (skosFile == null) {
-            throw new ElasticSearchIllegalArgumentException("Mandatory parameter 'skosFile' missing");
+            throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'skosFile' missing");
         }
         if (expansionTypeString == null) {
-            throw new ElasticSearchIllegalArgumentException("Mandatory parameter 'expansionType' missing");
+            throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'expansionType' missing");
         }
         if (skosFile.endsWith(".n3") || skosFile.endsWith(".rdf") || skosFile.endsWith(".ttl") || skosFile.endsWith(".zip")) {
             try {
@@ -58,10 +58,10 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
                         languageString != null ? languageString.split(" ") : null);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                throw new ElasticSearchIllegalArgumentException("could not instantiate SKOS engine", e);
+                throw new ElasticsearchIllegalArgumentException("could not instantiate SKOS engine", e);
             }
         } else {
-            throw new ElasticSearchIllegalArgumentException("Allowed file suffixes are: .n3 (N3), .rdf (RDF/XML), .ttl (Turtle) and .zip (zip)");
+            throw new ElasticsearchIllegalArgumentException("Allowed file suffixes are: .n3 (N3), .rdf (RDF/XML), .ttl (Turtle) and .zip (zip)");
         }
         if (expansionTypeString.equalsIgnoreCase(ExpansionType.LABEL.toString())) {
             expansionType = ExpansionType.LABEL;
@@ -71,7 +71,7 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
         if (bufferSizeString != null) {
             bufferSize = Integer.parseInt(bufferSizeString);
             if (bufferSize < 1) {
-                throw new ElasticSearchIllegalArgumentException("The property 'bufferSize' must be a positive (small) integer");
+                throw new ElasticsearchIllegalArgumentException("The property 'bufferSize' must be a positive (small) integer");
             }
         } else {
             bufferSize = 4;
@@ -85,7 +85,7 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
                         types.add(st);
                     }
                 } catch (IllegalArgumentException e) {
-                    throw new ElasticSearchIllegalArgumentException("The property 'skosType' must be one of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED");
+                    throw new ElasticsearchIllegalArgumentException("The property 'skosType' must be one of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED");
                 }
             }
         }

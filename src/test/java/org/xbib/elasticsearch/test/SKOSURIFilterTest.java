@@ -104,7 +104,7 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
     }
 
     @Test
-    public void multipleURIExpansion() throws CorruptIndexException, IOException {
+    public void multipleURIExpansion() throws IOException {
 
         Document doc = new Document();
         doc.add(new Field("subject", "http://example.com/concept/1",

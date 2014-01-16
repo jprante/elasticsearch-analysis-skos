@@ -95,18 +95,11 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
     private boolean addAliasesToStack() throws IOException {
         for (int i = buffer.size(); i > 0; i--) {
             String inputTokens = bufferToString(i);
-
             if (addTermsToStack(inputTokens)) {
                 break;
             }
-
         }
-
-        if (termStack.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return !termStack.isEmpty();
     }
 
     /**
@@ -173,8 +166,7 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
                 }
             }
         } catch (Exception e) {
-            System.err
-                    .println("Error when accessing SKOS Engine.\n" + e.getMessage());
+            System.err.println("Error when accessing SKOS Engine.\n" + e.getMessage());
         }
 
         if (termStack.isEmpty()) {

@@ -6,6 +6,8 @@ ported to Elasticsearch.
 
 For more information about the original version, please see https://github.com/behas/lucene-skos
 
+For a presentation and discussion, see http://de.slideshare.net/bhaslhofer/using-skos-vocabularies-for-improving-web-search
+
 What is SKOS?
 -------------
 The `Simple Knowledge Organization System`_  (SKOS) is a model for expressing controlled structured
@@ -38,15 +40,12 @@ Installation
 
 .. image:: https://travis-ci.org/jprante/elasticsearch-analysis-skos.png
 
-Prerequisites::
-
-  Elasticsearch 0.90.7+
-
-=============  =========  =================  =============================================================
-ES version     Plugin     Release date       Command
--------------  ---------  -----------------  -------------------------------------------------------------
-0.90.7         **1.1.0**  Nov 18, 2013       ./bin/plugin -install analysis-skos -url http://bit.ly/I1rAZt
-=============  =========  =================  =============================================================
+=============  ===========  =================  =============================================================
+ES version     Plugin       Release date       Command
+-------------  -----------  -----------------  -------------------------------------------------------------
+0.90.7         1.1.0        Nov 18, 2013     ./bin/plugin -install analysis-skos -url http://bit.ly/I1rAZt
+1.0.0.RC1      1.0.0.RC1.1  Jan 16, 2014     ./bin/plugin -install analysis-skos -url http://bit.ly/1d9h3m3
+=============  ===========  =================  =============================================================
 
 Do not forget to restart the node after installing.
 
