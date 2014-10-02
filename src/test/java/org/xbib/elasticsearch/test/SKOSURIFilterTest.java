@@ -36,6 +36,7 @@ import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * Testing the SKOS URI Filter
@@ -46,8 +47,8 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        skosAnalyzer = new SKOSAnalyzer(matchVersion, skosEngine, ExpansionType.URI);
-        writer = new IndexWriter(directory, new IndexWriterConfig(matchVersion,
+        skosAnalyzer = new SKOSAnalyzer(skosEngine, ExpansionType.URI);
+        writer = new IndexWriter(directory, new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
                 skosAnalyzer));
     }
 
@@ -147,7 +148,7 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
 
         String text = "http://example.com/concept/1";
 
-        skosAnalyzer = new SKOSAnalyzer(matchVersion, skosEngine, ExpansionType.URI);
+        skosAnalyzer = new SKOSAnalyzer(skosEngine, ExpansionType.URI);
 
         AnalyzerUtils.displayTokensWithFullDetails(skosAnalyzer, text);
         // AnalyzerUtils.displayTokensWithPositions(synonymAnalyzer, text);

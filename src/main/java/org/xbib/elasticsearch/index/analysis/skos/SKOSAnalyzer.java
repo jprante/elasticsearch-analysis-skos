@@ -29,11 +29,11 @@ import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
-import org.apache.lucene.util.Version;
 
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * An analyzer for expanding fields that contain either (i) URI references to
@@ -80,61 +80,54 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
      */
     public static final CharArraySet STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 
-    public SKOSAnalyzer(Version matchVersion, CharArraySet stopWords,
+    public SKOSAnalyzer(CharArraySet stopWords,
             SKOSEngine skosEngine, ExpansionType expansionType) {
-        super(matchVersion, stopWords);
+        super(SKOSAnalysisPlugin.getLuceneVersion(), stopWords);
         this.skosEngine = skosEngine;
         this.expansionType = expansionType;
     }
 
-    public SKOSAnalyzer(Version matchVersion, SKOSEngine skosEngine,
+    public SKOSAnalyzer(SKOSEngine skosEngine,
             ExpansionType expansionType) {
-        this(matchVersion, STOP_WORDS_SET, skosEngine, expansionType);
+        this(STOP_WORDS_SET, skosEngine, expansionType);
     }
 
-    public SKOSAnalyzer(Version matchVersion, Reader stopwords,
+    public SKOSAnalyzer(Reader stopwords,
             SKOSEngine skosEngine, ExpansionType expansionType) throws IOException {
-        this(matchVersion, loadStopwordSet(stopwords, matchVersion), skosEngine,
-                expansionType);
+        this(loadStopwordSet(stopwords, SKOSAnalysisPlugin.getLuceneVersion()), skosEngine, expansionType);
     }
 
-    public SKOSAnalyzer(Version matchVersion, CharArraySet stopWords,
+    public SKOSAnalyzer(CharArraySet stopWords,
             String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize, String... languages)
             throws IOException {
-        super(matchVersion, stopWords);
-        this.skosEngine = SKOSEngineFactory.getSKOSEngine(matchVersion, indexPath, skosFile,
-                languages);
+        super(SKOSAnalysisPlugin.getLuceneVersion(), stopWords);
+        this.skosEngine = SKOSEngineFactory.getSKOSEngine(indexPath, skosFile, languages);
         this.expansionType = expansionType;
         this.bufferSize = bufferSize;
     }
 
-    public SKOSAnalyzer(Version matchVersion, 
-            String indexPath, String skosFile,
+    public SKOSAnalyzer(String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize, String... languages)
             throws IOException {
-        this(matchVersion, STOP_WORDS_SET, indexPath,  skosFile, expansionType, bufferSize,
-                languages);
+        this(STOP_WORDS_SET, indexPath,  skosFile, expansionType, bufferSize, languages);
     }
 
-    public SKOSAnalyzer(Version matchVersion, 
-            String indexPath, String skosFile,
+    public SKOSAnalyzer(String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize) throws IOException {
-        this(matchVersion, indexPath, skosFile, expansionType, bufferSize, (String[]) null);
+        this(indexPath, skosFile, expansionType, bufferSize, (String[]) null);
     }
 
-    public SKOSAnalyzer(Version matchVersion, 
-            String indexPath, String skosFile,
+    public SKOSAnalyzer(String indexPath, String skosFile,
             ExpansionType expansionType) throws IOException {
-        this(matchVersion, indexPath, skosFile, expansionType,
-                SKOSLabelFilter.DEFAULT_BUFFER_SIZE);
+        this(indexPath, skosFile, expansionType, SKOSLabelFilter.DEFAULT_BUFFER_SIZE);
     }
 
-    public SKOSAnalyzer(Version matchVersion, Reader stopwords, 
+    public SKOSAnalyzer(Reader stopwords,
             String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize, String... languages)
             throws IOException {
-        this(matchVersion, loadStopwordSet(stopwords, matchVersion), indexPath, skosFile,
+        this(loadStopwordSet(stopwords, SKOSAnalysisPlugin.getLuceneVersion()), indexPath, skosFile,
                 expansionType, bufferSize, languages);
     }
 

@@ -18,7 +18,7 @@ package org.xbib.elasticsearch.index.analysis.skos.tokenattributes;
 import org.apache.lucene.util.AttributeImpl;
 
 /**
- * The SKOSType of a Token. See also {@link SKOSType}.
+ * The SKOSType of a Token.
  */
 public class SKOSTypeAttributeImpl extends AttributeImpl implements
         SKOSTypeAttribute, Cloneable {

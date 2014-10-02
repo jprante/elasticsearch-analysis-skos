@@ -19,7 +19,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
 import org.xbib.elasticsearch.index.analysis.skos.engine.mock.SKOSEngineMock;
@@ -32,8 +31,6 @@ import org.testng.annotations.BeforeTest;
  * Abstract class containing common code for filter tests
  */
 public abstract class AbstractFilterTest {
-
-    protected final Version matchVersion = Version.LUCENE_45;
 
     protected IndexSearcher searcher;
 

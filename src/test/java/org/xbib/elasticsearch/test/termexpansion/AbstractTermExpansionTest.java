@@ -33,18 +33,16 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * Common code used for all Use Case (UC) tests
  */
 public abstract class AbstractTermExpansionTest {
-
-    protected final Version matchVersion = Version.LUCENE_45;
 
     protected IndexSearcher searcher;
 
@@ -86,8 +84,8 @@ public abstract class AbstractTermExpansionTest {
                 TextField.TYPE_NOT_STORED));
 
         /* setting up a writer with a default (simple) analyzer */
-        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(
-                Version.LUCENE_45, new SimpleAnalyzer(Version.LUCENE_45)));
+        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
+                new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion())));
 
         /* adding the document to the index */
         writer.addDocument(doc);

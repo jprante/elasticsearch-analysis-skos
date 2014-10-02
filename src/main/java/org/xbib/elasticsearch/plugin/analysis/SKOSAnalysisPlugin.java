@@ -1,6 +1,7 @@
 
 package org.xbib.elasticsearch.plugin.analysis;
 
+import org.apache.lucene.util.Version;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.plugins.AbstractPlugin;
 
@@ -22,6 +23,10 @@ public class SKOSAnalysisPlugin extends AbstractPlugin {
 
     public void onModule(AnalysisModule module) {
         module.addTokenFilter("skos", SKOSTokenFilterFactory.class);
+    }
+
+    public static Version getLuceneVersion() {
+        return Version.LUCENE_4_9;
     }
 }
 

@@ -42,6 +42,7 @@ import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * This test-case verifies and demonstrates the "Label-based term expansion" use
@@ -82,18 +83,18 @@ public class LabelbasedTermExpansionTest extends AbstractTermExpansionTest {
         String indexPath = "target/";
 
         /* ExpansionType.URI->the field to be analyzed (expanded) contains URIs */
-        Analyzer skosAnalyzer = new SKOSAnalyzer(matchVersion, indexPath, skosFile,
+        Analyzer skosAnalyzer = new SKOSAnalyzer(indexPath, skosFile,
                 ExpansionType.LABEL);
 
         /* Define different analyzers for different fields */
         Map<String, Analyzer> analyzerPerField = new HashMap<String, Analyzer>();
         analyzerPerField.put("subject", skosAnalyzer);
         PerFieldAnalyzerWrapper indexAnalyzer = new PerFieldAnalyzerWrapper(
-                new SimpleAnalyzer(matchVersion), analyzerPerField);
+                new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), analyzerPerField);
 
         /* setting up a writer with a default (simple) analyzer */
-        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(
-                matchVersion, indexAnalyzer));
+        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
+                indexAnalyzer));
 
         /* adding the document to the index */
         writer.addDocument(doc);

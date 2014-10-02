@@ -39,6 +39,7 @@ import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * Testing the SKOS Label Filter
@@ -49,9 +50,9 @@ public class SKOSLabelFilterTest extends AbstractFilterTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        skosAnalyzer = new SKOSAnalyzer(matchVersion, skosEngine,
+        skosAnalyzer = new SKOSAnalyzer(skosEngine,
                 SKOSAnalyzer.ExpansionType.LABEL);
-        writer = new IndexWriter(directory, new IndexWriterConfig(matchVersion,
+        writer = new IndexWriter(directory, new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
                 skosAnalyzer));
     }
 
@@ -110,7 +111,7 @@ public class SKOSLabelFilterTest extends AbstractFilterTest {
         Assert.assertEquals("org.apache.lucene.search.MultiPhraseQuery", query
                 .getClass().getName());
 
-        query = new StandardQueryParser(new StandardAnalyzer(matchVersion)).parse("\"fox jumps\"", "content");
+        query = new StandardQueryParser(new StandardAnalyzer(SKOSAnalysisPlugin.getLuceneVersion())).parse("\"fox jumps\"", "content");
         Assert.assertEquals(1, TestUtil.hitCount(searcher, query));
 
         Assert.assertEquals("content:\"fox jumps\"", query.toString());
@@ -131,8 +132,7 @@ public class SKOSLabelFilterTest extends AbstractFilterTest {
 
         searcher = new IndexSearcher(DirectoryReader.open(writer, false));
 
-        StandardQueryParser parser = new StandardQueryParser(new SimpleAnalyzer(
-                matchVersion));
+        StandardQueryParser parser = new StandardQueryParser(new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()));
 
         Query query = parser.parse("united nations", "content");
 

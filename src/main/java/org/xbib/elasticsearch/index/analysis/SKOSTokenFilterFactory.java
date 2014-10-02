@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.util.Version;
 
 import org.elasticsearch.ElasticsearchIllegalArgumentException;
 import org.elasticsearch.common.inject.Inject;
@@ -24,6 +23,7 @@ import org.xbib.elasticsearch.index.analysis.skos.SKOSURIFilter;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 @AnalysisSettingsRequired
 public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
@@ -53,8 +53,7 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
         }
         if (skosFile.endsWith(".n3") || skosFile.endsWith(".rdf") || skosFile.endsWith(".ttl") || skosFile.endsWith(".zip")) {
             try {
-                skosEngine = SKOSEngineFactory.getSKOSEngine(Version.LUCENE_45,
-                        settings.get("path", ""), skosFile,
+                skosEngine = SKOSEngineFactory.getSKOSEngine(settings.get("path", ""), skosFile,
                         languageString != null ? languageString.split(" ") : null);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
@@ -95,9 +94,9 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
     @Override
     public TokenStream create(TokenStream tokenStream) {
         if (expansionType.equals(ExpansionType.LABEL)) {
-            return new SKOSLabelFilter(tokenStream, skosEngine, new StandardAnalyzer(Version.LUCENE_45), bufferSize, type);
+            return new SKOSLabelFilter(tokenStream, skosEngine, new StandardAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), bufferSize, type);
         } else {
-            return new SKOSURIFilter(tokenStream, skosEngine, new StandardAnalyzer(Version.LUCENE_45), type);
+            return new SKOSURIFilter(tokenStream, skosEngine, new StandardAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), type);
         }
     }
 }

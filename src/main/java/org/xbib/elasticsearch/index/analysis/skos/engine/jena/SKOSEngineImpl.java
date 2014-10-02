@@ -64,9 +64,9 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
+import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * A Lucene-backed SKOSEngine Implementation.
@@ -109,7 +109,7 @@ public class SKOSEngineImpl implements SKOSEngine {
             // not needed
         }
     }
-    protected final Version matchVersion;
+    //protected final Version matchVersion;
     /*
      * Static fields used in the Lucene Index
      */
@@ -156,16 +156,14 @@ public class SKOSEngineImpl implements SKOSEngine {
      * @param lang the serialization language
      * @throws IOException if the model cannot be loaded
      */
-    public SKOSEngineImpl(final Version version, InputStream inputStream,
+    public SKOSEngineImpl(InputStream inputStream,
             String lang) throws IOException {
 
         if (!("N3".equals(lang) || "RDF/XML".equals(lang) || "TURTLE".equals(lang))) {
             throw new IOException("Invalid RDF serialization format");
         }
 
-        matchVersion = version;
-
-        analyzer = new SimpleAnalyzer(matchVersion);
+        analyzer = new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion());
 
         skosModel = ModelFactory.createDefaultModel();
 
@@ -179,17 +177,6 @@ public class SKOSEngineImpl implements SKOSEngine {
     }
 
     /**
-     * Constructor for all label-languages
-     *
-     * @param filenameOrURI the name of the skos file to be loaded
-     * @throws IOException
-     */
-    public SKOSEngineImpl(final Version version, String indexPath, String filenameOrURI)
-            throws IOException {
-        this(version, indexPath, filenameOrURI, (String[]) null);
-    }
-
-    /**
      * This constructor loads the SKOS model from a given filename or URI,
      * starts the indexing process and sets up the index searcher.
      *
@@ -198,10 +185,9 @@ public class SKOSEngineImpl implements SKOSEngine {
      * @param filenameOrURI file name or URI
      * @throws IOException
      */
-    public SKOSEngineImpl(final Version version, String indexPath, String filenameOrURI,
+    public SKOSEngineImpl(String indexPath, String filenameOrURI,
             String... languages) throws IOException {
-        matchVersion = version;
-        analyzer = new SimpleAnalyzer(matchVersion);
+        analyzer = new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion());
 
         String langSig = "";
         if (languages != null) {
@@ -230,6 +216,39 @@ public class SKOSEngineImpl implements SKOSEngine {
             entailSKOSModel();
             indexSKOSModel();
         }
+
+        searcher = new IndexSearcher(DirectoryReader.open(indexDir));
+    }
+
+
+    /**
+     * This constructor loads the SKOS model from a given InputStream using the
+     * given serialization language parameter, which must be either N3, RDF/XML,
+     * or TURTLE.
+     *
+     * @param inputStream the input stream
+     * @param format the serialization language
+     * @throws IOException if the model cannot be loaded
+     */
+    public SKOSEngineImpl(InputStream inputStream,
+                          String format, String... languages) throws IOException {
+
+        if (!("N3".equals(format) || "RDF/XML".equals(format) || "TURTLE".equals(format))) {
+            throw new IOException("Invalid RDF serialization format");
+        }
+        if (languages != null) {
+            this.languages = new TreeSet<String>(Arrays.asList(languages));
+        }
+
+        analyzer = new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion());
+
+        skosModel = ModelFactory.createDefaultModel();
+
+        skosModel.read(inputStream, null, format);
+
+        indexDir = new RAMDirectory();
+        entailSKOSModel();
+        indexSKOSModel();
 
         searcher = new IndexSearcher(DirectoryReader.open(indexDir));
     }
@@ -472,7 +491,7 @@ public class SKOSEngineImpl implements SKOSEngine {
      * @throws IOException
      */
     private void indexSKOSModel() throws IOException {
-        IndexWriterConfig cfg = new IndexWriterConfig(matchVersion, analyzer);
+        IndexWriterConfig cfg = new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(), analyzer);
         IndexWriter writer = new IndexWriter(indexDir, cfg);
         writer.getConfig().setRAMBufferSizeMB(48);
 

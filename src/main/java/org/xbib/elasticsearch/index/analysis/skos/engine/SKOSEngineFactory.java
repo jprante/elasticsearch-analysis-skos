@@ -18,8 +18,6 @@ package org.xbib.elasticsearch.index.analysis.skos.engine;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.lucene.util.Version;
-
 import org.xbib.elasticsearch.index.analysis.skos.engine.jena.SKOSEngineImpl;
 
 /**
@@ -36,9 +34,8 @@ public class SKOSEngineFactory {
      * @return a new SKOSEngine instance
      * @throws IOException
      */
-    public static SKOSEngine getSKOSEngine(final Version version, String indexPath,
-            String filenameOrURI) throws IOException {
-        return new SKOSEngineImpl(version, indexPath, filenameOrURI);
+    public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI) throws IOException {
+        return new SKOSEngineImpl(indexPath, filenameOrURI);
     }
 
     /**
@@ -50,9 +47,8 @@ public class SKOSEngineFactory {
      * @return a new SKOSEngine instance
      * @throws IOException
      */
-    public static SKOSEngine getSKOSEngine(final Version version,
-            InputStream inputStream, String lang) throws IOException {
-        return new SKOSEngineImpl(version, inputStream, lang);
+    public static SKOSEngine getSKOSEngine(InputStream inputStream, String lang) throws IOException {
+        return new SKOSEngineImpl(inputStream, lang);
     }
 
     /**
@@ -65,8 +61,22 @@ public class SKOSEngineFactory {
      * @return SKOSEngine
      * @throws IOException
      */
-    public static SKOSEngine getSKOSEngine(final Version version,
-            String indexPath,String filenameOrURI, String... languages) throws IOException {
-        return new SKOSEngineImpl(version, indexPath, filenameOrURI, languages);
+    public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI, String... languages) throws IOException {
+        return new SKOSEngineImpl(indexPath, filenameOrURI, languages);
+    }
+
+
+    /**
+     * Sets up a SKOS Engine from a given InputStream. The inputstream must
+     * deliver data in a valid RDF serialization format.
+     *
+     * @param inputStream the input stream
+     * @param format the serialization format (N3, RDF/XML, TURTLE)
+     * @param languages the languages to be considered
+     * @return a new SKOSEngine instance
+     * @throws IOException
+     */
+    public static SKOSEngine getSKOSEngine(InputStream inputStream, String format, String... languages) throws IOException {
+        return new SKOSEngineImpl(inputStream, format, languages);
     }
 }
