@@ -166,14 +166,10 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error when accessing SKOS Engine.\n" + e.getMessage());
+            throw new IOException("error when accessing SKOS engine: " + e.getMessage());
         }
+        return !termStack.isEmpty();
 
-        if (termStack.isEmpty()) {
-            return false;
-        }
-
-        return true;
     }
 
     public int getBufferSize() {

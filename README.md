@@ -6,16 +6,17 @@ ported to Elasticsearch.
 
 For more information about the original version, please see https://github.com/behas/lucene-skos
 
-For a presentation and discussion, see http://de.slideshare.net/bhaslhofer/using-skos-vocabularies-for-improving-web-search
+For a presentation and discussion, see
+http://de.slideshare.net/bhaslhofer/using-skos-vocabularies-for-improving-web-search
 
 What is SKOS?
 -------------
-The `Simple Knowledge Organization System`_  (SKOS) is a model for expressing controlled structured
+The Simple Knowledge Organization System  (SKOS) is a model for expressing controlled structured
 vocabularies (classification schemes, thesauri, taxonomies, etc.).
-As an application of the `Resource Description Framework`_ (RDF),
+As an application of the Resource Description Framework (RDF),
 SKOS allows these vocabularies to be published as dereferenceable resources on the Web,
 which makes them easy to retrieve and reuse in applications. SKOS plays a major role in the
-ongoing `Linked Data`_ activities.
+ongoing Linked Data activities.
 
 SKOS analysis
 -------------
@@ -38,32 +39,25 @@ The module supports the following use cases:
 Installation
 ------------
 
-.. image:: https://travis-ci.org/jprante/elasticsearch-analysis-skos.png
+(https://travis-ci.org/jprante/elasticsearch-analysis-skos.png)
 
-=============  ===========  =================  =============================================================
-ES version     Plugin       Release date       Command
--------------  -----------  -----------------  -------------------------------------------------------------
-0.90.7         1.1.0        Nov 18, 2013     ./bin/plugin -install analysis-skos -url http://bit.ly/I1rAZt
-1.0.0.RC1      1.0.0.RC1.1  Jan 16, 2014     ./bin/plugin -install analysis-skos -url http://bit.ly/1d9h3m3
-=============  ===========  =================  =============================================================
+| Elasticsearch version    | Plugin      | Release date |
+| ------------------------ | ----------- | -------------|
+| 1.4.2                    | 1.4.2.0     | Feb  5, 2015 |
+
+    ./bin/plugin -install analysis-skos -url  http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/1.4.2.0/elasticsearch-analysis-skos-1.4.2.0-plugin.zip
 
 Do not forget to restart the node after installing.
 
 Project docs
 ------------
 
-The Maven project site is available at `Github <http://jprante.github.io/elasticsearch-analysis-skos>`_
-
-Binaries
---------
-
-Binaries are available at `Bintray <https://bintray.com/pkg/show/general/jprante/elasticsearch-plugins/elasticsearch-analysis-skos>`_
-
+The Maven project site is available at [Github](http://jprante.github.io/elasticsearch-analysis-skos)
 
 Example
 =======
 
-Given the following example SKOS file **ukat_examples.n3** in **$ES\_HOME**::
+Given the following example SKOS file *ukat_examples.n3* in *$ES\_HOME*
 
 	@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 	@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -89,7 +83,7 @@ Given the following example SKOS file **ukat_examples.n3** in **$ES\_HOME**::
 	ukat:7630 rdf:type skos:Concept;
 	        skos:prefLabel "Artillery".
 
-you can use URI-based expansion like in this demonstration::
+you can use URI-based expansion like in this demonstration
 
 	curl -XDELETE 'localhost:9200/test/'
 
@@ -171,20 +165,35 @@ you can use URI-based expansion like in this demonstration::
 Parameter overview
 ------------------
 
-The following settings parameters may be used in a filter of type **skos**::
+The following settings parameters may be used in a filter of type *skos*
 
 	path - a path for SKOS index directory
+
 	skosFile - the name of the skos file with suffix .n3, .rdf, .ttl, .zip (mandatory)
+
 	expansionType - wither URI or LABEL (mandatory)
+
 	bufferSize - a buffer size for the number of words that will be checked for expansion
+
 	language - a language for the expansion
+
 	skosType - a string with space-separated terms of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED
 	
 
-.. _Simple Knowledge Organization System: http://www.w3.org/TR/skos-primer/
-.. _Resource Description Framework: http://www.w3.org/TR/rdf-primer/
-.. _Linked Data: http://www.w3.org/standards/semanticweb/data
-.. _Apache Lucene: http://lucene.apache.org/core/
-.. _Apache Solr: http://lucene.apache.org/solr/
-.. _Elasticsearch: http://elasticsearch.org/
-.. _Apache Jena: http://jena.apache.org/
+# License
+
+Elasticsearch SKOS Plugin
+
+Copyright (C) 2013 Jörg Prante
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

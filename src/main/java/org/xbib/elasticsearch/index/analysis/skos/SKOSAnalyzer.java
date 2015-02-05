@@ -160,20 +160,18 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
             Reader reader) {
         if (expansionType.equals(ExpansionType.URI)) {
             final KeywordTokenizer src = new KeywordTokenizer(reader);
-            TokenStream tok = new SKOSURIFilter(src, skosEngine,
-                    new StandardAnalyzer(matchVersion), types);
-            tok = new LowerCaseFilter(matchVersion, tok);
+            TokenStream tok = new SKOSURIFilter(src, skosEngine, new StandardAnalyzer(), types);
+            tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(src, tok);
         } else {
-            final StandardTokenizer src = new StandardTokenizer(matchVersion, reader);
+            final StandardTokenizer src = new StandardTokenizer(reader);
             src.setMaxTokenLength(maxTokenLength);
-            TokenStream tok = new StandardFilter(matchVersion, src);
+            TokenStream tok = new StandardFilter(src);
             // prior to this we get the classic behavior, standardfilter does it for
             // us.
-            tok = new SKOSLabelFilter(tok, skosEngine, new StandardAnalyzer(
-                    matchVersion), bufferSize, types);
-            tok = new LowerCaseFilter(matchVersion, tok);
-            tok = new StopFilter(matchVersion, tok, stopwords);
+            tok = new SKOSLabelFilter(tok, skosEngine, new StandardAnalyzer(), bufferSize, types);
+            tok = new LowerCaseFilter(tok);
+            tok = new StopFilter(tok, stopwords);
             tok = new RemoveDuplicatesTokenFilter(tok);
             return new TokenStreamComponents(src, tok) {
                 @Override
