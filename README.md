@@ -45,7 +45,7 @@ Installation
 | ------------------------ | ----------- | -------------|
 | 1.4.2                    | 1.4.2.0     | Feb  5, 2015 |
 
-    ./bin/plugin -install analysis-skos -url  http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/1.4.2.0/elasticsearch-analysis-skos-1.4.2.0-plugin.zip
+    ./bin/plugin -install analysis-skos -url  http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/1.4.2.0/elasticsearch-analysis-skos-1.4.2.0.zip
 
 Do not forget to restart the node after installing.
 
