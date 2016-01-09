@@ -56,7 +56,7 @@ Do not forget to restart the node after installing.
 1.x
 ---
 
-    ./bin/plugin -install analysis-skos -url  http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/1.4.2.0/elasticsearch-analysis-skos-1.4.2.0-plugin.zip
+    ./bin/plugin -install analysis-skos -url  http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/1.4.2.0/elasticsearch-analysis-skos-1.4.2.0.zip
 
 Do not forget to restart the node after installing.
 
