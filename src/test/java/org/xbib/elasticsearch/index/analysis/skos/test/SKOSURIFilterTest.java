@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test;
+package org.xbib.elasticsearch.index.analysis.skos.test;
 
 import java.io.IOException;
 
@@ -30,26 +30,24 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Testing the SKOS URI Filter
  */
 public class SKOSURIFilterTest extends AbstractFilterTest {
 
-    @BeforeMethod
+    @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
         skosAnalyzer = new SKOSAnalyzer(skosEngine, ExpansionType.URI);
-        writer = new IndexWriter(directory, new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
-                skosAnalyzer));
+        writer = new IndexWriter(directory, new IndexWriterConfig(skosAnalyzer));
     }
 
     @Test
@@ -67,15 +65,15 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
         Query query = new TermQuery(new Term("subject", "leaps"));
 
         TopDocs results = searcher.search(query, 10);
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
         Document indexDoc = searcher.doc(results.scoreDocs[0].doc);
 
         String[] fieldValues = indexDoc.getValues("subject");
 
-        Assert.assertEquals(1, fieldValues.length);
+        assertEquals(1, fieldValues.length);
 
-        Assert.assertEquals(fieldValues[0], "http://example.com/concept/1");
+        assertEquals(fieldValues[0], "http://example.com/concept/1");
 
     }
 
@@ -94,13 +92,13 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
         Query query = new TermQuery(new Term("subject", "jumps"));
 
         TopDocs results = searcher.search(query, 10);
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
         Document indexDoc = searcher.doc(results.scoreDocs[0].doc);
 
         String[] fieldValues = indexDoc.getValues("subject");
 
-        Assert.assertEquals(0, fieldValues.length);
+        assertEquals(0, fieldValues.length);
 
     }
 
@@ -121,25 +119,25 @@ public class SKOSURIFilterTest extends AbstractFilterTest {
         Query query = new TermQuery(new Term("subject", "hops"));
 
         TopDocs results = searcher.search(query, 10);
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
         Document indexDoc = searcher.doc(results.scoreDocs[0].doc);
 
         String[] fieldValues = indexDoc.getValues("subject");
 
-        Assert.assertEquals(2, fieldValues.length);
+        assertEquals(2, fieldValues.length);
 
         // querying for alternative term of concept 2
         query = new TermQuery(new Term("subject", "speedy"));
 
         results = searcher.search(query, 10);
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
         indexDoc = searcher.doc(results.scoreDocs[0].doc);
 
         fieldValues = indexDoc.getValues("subject");
 
-        Assert.assertEquals(2, fieldValues.length);
+        assertEquals(2, fieldValues.length);
 
     }
 

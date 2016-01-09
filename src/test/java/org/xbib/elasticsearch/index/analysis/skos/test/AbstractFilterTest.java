@@ -13,19 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test;
+package org.xbib.elasticsearch.index.analysis.skos.test;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
+import org.junit.After;
+import org.junit.Before;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
 import org.xbib.elasticsearch.index.analysis.skos.engine.mock.SKOSEngineMock;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
-
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 
 /**
  * Abstract class containing common code for filter tests
@@ -42,7 +41,7 @@ public abstract class AbstractFilterTest {
 
     protected Directory directory;
 
-    @BeforeTest
+    @Before
     protected void setUp() throws Exception {
 
         // adding some test data
@@ -75,11 +74,11 @@ public abstract class AbstractFilterTest {
                 "lazy dog");
         skosEngine.addEntry("http://example.com/concept/7", SKOSType.ALT, "Odie");
 
-        directory = new RAMDirectory();
+        this.directory = new RAMDirectory();
 
     }
 
-    @AfterTest
+    @After
     public void tearDown() throws Exception {
 
         if (writer != null) {

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test.termexpansion;
+package org.xbib.elasticsearch.index.analysis.skos.test.termexpansion;
 
 import java.io.IOException;
 
@@ -34,10 +34,10 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.Test;
-import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
+import org.junit.After;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Common code used for all Use Case (UC) tests
@@ -48,10 +48,14 @@ public abstract class AbstractTermExpansionTest {
 
     protected IndexWriter writer;
 
-    @AfterTest
+    @After
     public void tearDown() throws Exception {
-        writer.close();
-        searcher.getIndexReader().close();
+        if (writer != null) {
+            writer.close();
+        }
+        if (searcher != null && searcher.getIndexReader() != null) {
+            searcher.getIndexReader().close();
+        }
     }
 
     /**
@@ -71,10 +75,8 @@ public abstract class AbstractTermExpansionTest {
 
         /* defining the document to be indexed */
         Document doc = new Document();
-        doc.add(new Field("title", "Spearhead",
-                TextField.TYPE_STORED));
-        doc.add(new Field(
-                "description",
+        doc.add(new Field("title", "Spearhead", TextField.TYPE_STORED));
+        doc.add(new Field("description",
                 "Roman iron spearhead. The spearhead was attached to one end of a wooden shaft..."
                 + "The spear was mainly a thrusting weapon, but could also be thrown. "
                 + "It was the principal weapon of the auxiliary soldier... "
@@ -84,27 +86,23 @@ public abstract class AbstractTermExpansionTest {
                 TextField.TYPE_NOT_STORED));
 
         /* setting up a writer with a default (simple) analyzer */
-        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
-                new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion())));
+        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(new SimpleAnalyzer()));
 
         /* adding the document to the index */
         writer.addDocument(doc);
 
         /* defining a query that searches over all fields */
-        BooleanQuery query = new BooleanQuery();
-        query.add(new TermQuery(new Term("title", "arms")),
-                BooleanClause.Occur.SHOULD);
-        query.add(new TermQuery(new Term("description", "arms")),
-                BooleanClause.Occur.SHOULD);
-        query.add(new TermQuery(new Term("subject", "arms")),
-                BooleanClause.Occur.SHOULD);
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(new TermQuery(new Term("title", "arms")), BooleanClause.Occur.SHOULD)
+                .add(new TermQuery(new Term("description", "arms")), BooleanClause.Occur.SHOULD)
+                .add(new TermQuery(new Term("subject", "arms")), BooleanClause.Occur.SHOULD);
 
         /* creating a new searcher */
         searcher = new IndexSearcher(DirectoryReader.open(writer, false));
 
-        TopDocs results = searcher.search(query, 10);
+        TopDocs results = searcher.search(builder.build(), 10);
 
         /* no results are returned since there is no term match */
-        Assert.assertEquals(0, results.totalHits);
+        assertEquals(0, results.totalHits);
     }
 }

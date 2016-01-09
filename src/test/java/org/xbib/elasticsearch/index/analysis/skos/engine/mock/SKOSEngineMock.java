@@ -33,7 +33,7 @@ public class SKOSEngineMock implements SKOSEngine {
     /**
      * A data structure holding a SKOS Model
      */
-    private Map<String, Map<SKOSType, List<String>>> conceptMap = new HashMap();
+    private Map<String, Map<SKOSType, List<String>>> conceptMap = new HashMap<>();
     /**
      * Stores the maximum number of terms contained in a prefLabel
      */
@@ -42,36 +42,27 @@ public class SKOSEngineMock implements SKOSEngine {
     /**
      * Method for feeding mock with data
      *
-     * @param conceptURI
-     * @param type
-     * @param values
+     * @param conceptURI the conecpt URI
+     * @param type the type
+     * @param values the values
      */
     public void addEntry(String conceptURI, SKOSType type, String... values) {
         if (!conceptMap.containsKey(conceptURI)) {
-            Map<SKOSType, List<String>> entryMap = new HashMap();
-            conceptMap.put(conceptURI, entryMap);
+            conceptMap.put(conceptURI, new HashMap<SKOSType, List<String>>());
         }
-
         Map<SKOSType, List<String>> entryMap = conceptMap.get(conceptURI);
         if (!entryMap.containsKey(type)) {
-            List<String> entries = new ArrayList<String>();
-            entryMap.put(type, entries);
+            entryMap.put(type, new ArrayList<String>());
         }
-
         List<String> entries = entryMap.get(type);
-
         for (String value : values) {
             entries.add(value.toLowerCase());
-
             // check for longest prefLabel
             if (type.equals(SKOSType.PREF)) {
-
                 int noTerms = countLabelTerms(value);
-
                 if (maxPrefLabelTerms < noTerms) {
                     maxPrefLabelTerms = noTerms;
                 }
-
             }
         }
     }
@@ -90,24 +81,19 @@ public class SKOSEngineMock implements SKOSEngine {
 
     @Override
     public String[] getAltTerms(String label) throws IOException {
-        List<String> altTerms = new ArrayList<String>();
-
+        List<String> altTerms = new ArrayList<>();
         // convert the query to lower-case
         String queryString = label.toLowerCase();
-
         String[] conceptURIs = getConcepts(queryString);
-
         if (conceptURIs == null) {
             return null;
         }
-
         for (String conceptURI : conceptURIs) {
             String[] altLabels = getAltLabels(conceptURI);
             if (altLabels != null) {
                 altTerms.addAll(Arrays.asList(altLabels));
             }
         }
-
         return altTerms.toArray(new String[altTerms.size()]);
     }
 
@@ -141,44 +127,32 @@ public class SKOSEngineMock implements SKOSEngine {
     @Override
     public String[] getConcepts(String label) throws IOException {
         String queryString = label.toLowerCase();
-
-        List<String> conceptURIs = new ArrayList<String>();
-
+        List<String> conceptURIs = new ArrayList<>();
         for (String conceptURI : conceptMap.keySet()) {
             Map<SKOSType, List<String>> entryMap = conceptMap.get(conceptURI);
-
             List<String> prefLabels = entryMap.get(SKOSType.PREF);
-
             if (prefLabels != null && prefLabels.contains(queryString)) {
                 conceptURIs.add(conceptURI);
             }
-
             List<String> altLabels = entryMap.get(SKOSType.ALT);
-
             if (altLabels != null && altLabels.contains(queryString)) {
                 conceptURIs.add(conceptURI);
             }
-
             List<String> hiddenLabels = entryMap.get(SKOSType.HIDDEN);
-
             if (hiddenLabels != null && hiddenLabels.contains(queryString)) {
                 conceptURIs.add(conceptURI);
             }
         }
-
         return conceptURIs.toArray(new String[conceptURIs.size()]);
     }
 
     private String[] getLabels(String conceptURI, SKOSType type)
             throws IOException {
         String[] concepts = readConceptFieldValues(conceptURI, type);
-
         if (concepts == null) {
             return null;
         }
-
-        List<String> labels = new ArrayList<String>();
-
+        List<String> labels = new ArrayList<>();
         for (String aConcept : concepts) {
             String[] prefLabels = getPrefLabels(aConcept);
             if (prefLabels != null) {
@@ -189,7 +163,6 @@ public class SKOSEngineMock implements SKOSEngine {
                 labels.addAll(Arrays.asList(altLabels));
             }
         }
-
         return labels.toArray(new String[labels.size()]);
     }
 
@@ -236,11 +209,9 @@ public class SKOSEngineMock implements SKOSEngine {
     private String[] readConceptFieldValues(String conceptURI, SKOSType type)
             throws IOException {
         List<String> labels = conceptMap.get(conceptURI).get(type);
-
         if (labels != null) {
             return labels.toArray(new String[labels.size()]);
         }
-
         return new String[0];
     }
 }

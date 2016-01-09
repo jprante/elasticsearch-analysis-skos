@@ -8,3 +8,7 @@ target
 *.db
 data
 *.DS_Store*
+/.project
+/.gradle
+/build
+/plugins

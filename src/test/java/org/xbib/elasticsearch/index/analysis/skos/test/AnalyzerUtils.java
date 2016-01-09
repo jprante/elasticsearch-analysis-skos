@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test;
+package org.xbib.elasticsearch.index.analysis.skos.test;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -31,8 +31,6 @@ import org.apache.lucene.util.BytesRef;
  * Utils for displaying the results of the Lucene analysis process
  */
 public class AnalyzerUtils {
-
-    //private final static Logger logger = Logg
 
     public static void displayTokens(Analyzer analyzer, String text)
             throws IOException {

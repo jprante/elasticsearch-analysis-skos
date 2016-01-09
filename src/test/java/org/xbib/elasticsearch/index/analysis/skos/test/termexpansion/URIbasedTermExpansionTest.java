@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test.termexpansion;
+package org.xbib.elasticsearch.index.analysis.skos.test.termexpansion;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,92 +37,84 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.RAMDirectory;
 
+import org.junit.Test;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
+import static org.junit.Assert.assertEquals;
 
 /**
- * This test-case verifies and demonstrates the "Label-based term expansion" use
- * case as described in https://code.
- * google.com/p/lucene-skos/wiki/UseCases#UC2:_Label-based_term_expansion
+ * This test-case verifies and demonstrates the "Expansion of URI terms to SKOS
+ * labels" use case as described in https://code.
+ * google.com/p/lucene-skos/wiki/UseCases#UC1:_URI-based_term_expansion
  */
-public class LabelbasedTermExpansionTest extends AbstractTermExpansionTest {
+public class URIbasedTermExpansionTest extends AbstractTermExpansionTest {
 
     /**
      * This test indexes a sample metadata record (=lucene document) having a
-     * "title", "description", and "subject" field.
+     * "title", "description", and "subject" field, which is semantically
+     * enriched by a URI pointing to a SKOS concept "weapons".
      *
      * A search for "arms" returns that record as a result because "arms" is
-     * defined as an alternative label for "weapons", the term which is
-     * contained in the subject field.
+     * defined as an alternative label (altLabel) for the concept "weapons".
      *
      * @throws IOException
      */
     @Test
-    public void labelBasedTermExpansion() throws IOException {
+    public void uriBasedTermExpansion() throws IOException {
 
         /* defining the document to be indexed */
         Document doc = new Document();
-        doc.add(new Field("title", "Spearhead",
-                TextField.TYPE_STORED));
-        doc.add(new Field(
-                "description",
+        doc.add(new Field("title", "Spearhead", TextField.TYPE_STORED));
+        doc.add(new Field("description",
                 "Roman iron spearhead. The spearhead was attached to one end of a wooden shaft..."
                 + "The spear was mainly a thrusting weapon, but could also be thrown. "
                 + "It was the principal weapon of the auxiliary soldier... "
                 + "(second - fourth century, Arbeia Roman Fort).",
                 TextField.TYPE_NOT_STORED));
-        doc.add(new Field("subject", "weapons",
+        doc.add(new Field("subject",
+                "http://www.ukat.org.uk/thesaurus/concept/859",
                 TextField.TYPE_NOT_STORED));
 
         /* setting up the SKOS analyzer */
         String skosFile = "src/test/resources/skos_samples/ukat_examples.n3";
-        String indexPath = "target/";
+        String indexPath = "build/";
 
         /* ExpansionType.URI->the field to be analyzed (expanded) contains URIs */
-        Analyzer skosAnalyzer = new SKOSAnalyzer(indexPath, skosFile,
-                ExpansionType.LABEL);
+        Analyzer skosAnalyzer = new SKOSAnalyzer(indexPath, skosFile, ExpansionType.URI);
 
         /* Define different analyzers for different fields */
-        Map<String, Analyzer> analyzerPerField = new HashMap<String, Analyzer>();
+        Map<String, Analyzer> analyzerPerField = new HashMap<>();
         analyzerPerField.put("subject", skosAnalyzer);
-        PerFieldAnalyzerWrapper indexAnalyzer = new PerFieldAnalyzerWrapper(
-                new SimpleAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), analyzerPerField);
+        PerFieldAnalyzerWrapper indexAnalyzer = new PerFieldAnalyzerWrapper(new SimpleAnalyzer(), analyzerPerField);
 
         /* setting up a writer with a default (simple) analyzer */
-        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(SKOSAnalysisPlugin.getLuceneVersion(),
-                indexAnalyzer));
+        writer = new IndexWriter(new RAMDirectory(), new IndexWriterConfig(indexAnalyzer));
 
         /* adding the document to the index */
         writer.addDocument(doc);
 
         /* defining a query that searches over all fields */
-        BooleanQuery query1 = new BooleanQuery();
-        query1.add(new TermQuery(new Term("title", "arms")),
-                BooleanClause.Occur.SHOULD);
-        query1.add(new TermQuery(new Term("description", "arms")),
-                BooleanClause.Occur.SHOULD);
-        query1.add(new TermQuery(new Term("subject", "arms")),
-                BooleanClause.Occur.SHOULD);
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(new TermQuery(new Term("title", "arms")), BooleanClause.Occur.SHOULD)
+                .add(new TermQuery(new Term("description", "arms")), BooleanClause.Occur.SHOULD)
+                .add(new TermQuery(new Term("subject", "arms")), BooleanClause.Occur.SHOULD);
 
         /* creating a new searcher */
         searcher = new IndexSearcher(DirectoryReader.open(writer, false));
 
-        TopDocs results = searcher.search(query1, 10);
+        TopDocs results = searcher.search(builder.build(), 10);
 
         /* the document matches because "arms" is among the expanded terms */
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
         /* defining a query that searches for a broader concept */
-        Query query2 = new TermQuery(new Term("subject", "military equipment"));
+        Query query = new TermQuery(new Term("subject", "military equipment"));
 
-        results = searcher.search(query2, 10);
+        results = searcher.search(query, 10);
 
         /* ... also returns the document as result */
-        Assert.assertEquals(1, results.totalHits);
+        assertEquals(1, results.totalHits);
 
     }
 }

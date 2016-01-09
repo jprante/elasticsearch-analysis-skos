@@ -34,13 +34,6 @@ import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttrib
  */
 public final class SKOSURIFilter extends AbstractSKOSFilter {
 
-    /**
-     * Constructor.
-     *
-     * @param input
-     * @param skosEngine
-     * @param types
-     */
     public SKOSURIFilter(TokenStream input, SKOSEngine skosEngine,
             Analyzer analyzer, SKOSType... types) {
         super(input, skosEngine, analyzer, types);
@@ -75,8 +68,10 @@ public final class SKOSURIFilter extends AbstractSKOSFilter {
 
     /**
      * Assumes that the given term is a concept URI
+     * @param term the given term
+     * @return true if term stack is not empty
      */
-    public boolean addTermsToStack(String term) throws IOException {
+    public boolean addTermsToStack(String term) {
         try {
             if (types.contains(SKOSType.PREF)) {
                 String[] prefLabels = engine.getPrefLabels(term);
@@ -105,14 +100,8 @@ public final class SKOSURIFilter extends AbstractSKOSFilter {
                 pushLabelsToStack(narrowerTransitiveLabels, SKOSType.NARROWERTRANSITIVE);
             }
         } catch (Exception e) {
-            System.err
-                    .println("Error when accessing SKOS Engine.\n" + e.getMessage());
+            throw new RuntimeException("Error when accessing SKOS Engine.\n" + e.getMessage());
         }
-
-        if (termStack.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return !termStack.isEmpty();
     }
 }

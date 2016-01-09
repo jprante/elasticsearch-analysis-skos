@@ -34,6 +34,7 @@ public class SKOSTypeAttributeImpl extends AttributeImpl implements
 
     /**
      * Initialize this attribute with the given SKOSType.
+     * @param skosType the SKOS type
      */
     public SKOSTypeAttributeImpl(SKOSType skosType) {
         super();
@@ -66,13 +67,11 @@ public class SKOSTypeAttributeImpl extends AttributeImpl implements
         if (other == this) {
             return true;
         }
-
         if (other instanceof SKOSTypeAttribute) {
             final SKOSTypeAttributeImpl otherImpl = (SKOSTypeAttributeImpl) other;
             return (this.skosType == null ? otherImpl.skosType == null
                     : this.skosType.equals(otherImpl.skosType));
         }
-
         return false;
     }
 

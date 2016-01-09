@@ -13,15 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.test;
+package org.xbib.elasticsearch.index.analysis.skos.test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
+import org.junit.Assert;
+import org.junit.Test;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
 

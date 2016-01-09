@@ -8,22 +8,20 @@ import java.util.List;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import org.elasticsearch.ElasticsearchIllegalArgumentException;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 import org.elasticsearch.index.analysis.AnalysisSettingsRequired;
-import org.elasticsearch.index.settings.IndexSettings;
 
+import org.elasticsearch.index.settings.IndexSettingsService;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer.ExpansionType;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSLabelFilter;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSURIFilter;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
-import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 @AnalysisSettingsRequired
 public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
@@ -37,19 +35,21 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
     private final int bufferSize;
 
     @Inject
-    public SKOSTokenFilterFactory(Index index, @IndexSettings Settings indexSettings,
-            @Assisted String name, @Assisted Settings settings) {
-        super(index, indexSettings, name, settings);
+    public SKOSTokenFilterFactory(Index index,
+                                  IndexSettingsService indexSettingsService,
+                                  @Assisted String name,
+                                  @Assisted Settings settings) {
+        super(index, indexSettingsService.indexSettings(), name, settings);
         String skosFile = settings.get("skosFile");
         String expansionTypeString = settings.get("expansionType");
         String bufferSizeString = settings.get("bufferSize");
         String languageString = settings.get("language");
         String typeString = settings.get("skosType");
         if (skosFile == null) {
-            throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'skosFile' missing");
+            throw new IllegalArgumentException("Mandatory parameter 'skosFile' missing");
         }
         if (expansionTypeString == null) {
-            throw new ElasticsearchIllegalArgumentException("Mandatory parameter 'expansionType' missing");
+            throw new IllegalArgumentException("Mandatory parameter 'expansionType' missing");
         }
         if (skosFile.endsWith(".n3") || skosFile.endsWith(".rdf") || skosFile.endsWith(".ttl") || skosFile.endsWith(".zip")) {
             try {
@@ -57,10 +57,10 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
                         languageString != null ? languageString.split(" ") : null);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                throw new ElasticsearchIllegalArgumentException("could not instantiate SKOS engine", e);
+                throw new IllegalArgumentException("could not instantiate SKOS engine", e);
             }
         } else {
-            throw new ElasticsearchIllegalArgumentException("Allowed file suffixes are: .n3 (N3), .rdf (RDF/XML), .ttl (Turtle) and .zip (zip)");
+            throw new IllegalArgumentException("Allowed file suffixes are: .n3 (N3), .rdf (RDF/XML), .ttl (Turtle) and .zip (zip)");
         }
         if (expansionTypeString.equalsIgnoreCase(ExpansionType.LABEL.toString())) {
             expansionType = ExpansionType.LABEL;
@@ -70,7 +70,7 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
         if (bufferSizeString != null) {
             bufferSize = Integer.parseInt(bufferSizeString);
             if (bufferSize < 1) {
-                throw new ElasticsearchIllegalArgumentException("The property 'bufferSize' must be a positive (small) integer");
+                throw new IllegalArgumentException("The property 'bufferSize' must be a positive (small) integer");
             }
         } else {
             bufferSize = 4;
@@ -84,7 +84,7 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
                         types.add(st);
                     }
                 } catch (IllegalArgumentException e) {
-                    throw new ElasticsearchIllegalArgumentException("The property 'skosType' must be one of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED");
+                    throw new IllegalArgumentException("The property 'skosType' must be one of PREF, ALT, HIDDEN, BROADER, NARROWER, BROADERTRANSITIVE, NARROWERTRANSITIVE, RELATED");
                 }
             }
         }
@@ -94,9 +94,9 @@ public class SKOSTokenFilterFactory extends AbstractTokenFilterFactory {
     @Override
     public TokenStream create(TokenStream tokenStream) {
         if (expansionType.equals(ExpansionType.LABEL)) {
-            return new SKOSLabelFilter(tokenStream, skosEngine, new StandardAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), bufferSize, type);
+            return new SKOSLabelFilter(tokenStream, skosEngine, new StandardAnalyzer(), bufferSize, type);
         } else {
-            return new SKOSURIFilter(tokenStream, skosEngine, new StandardAnalyzer(SKOSAnalysisPlugin.getLuceneVersion()), type);
+            return new SKOSURIFilter(tokenStream, skosEngine, new StandardAnalyzer(), type);
         }
     }
 }

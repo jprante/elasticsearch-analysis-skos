@@ -30,9 +30,10 @@ public class SKOSEngineFactory {
      * serialization format) or a remote rdf serialization identified by a URI
      * and reachable via HTTP.
      *
+     * @param indexPath the index path
      * @param filenameOrURI the skos file
      * @return a new SKOSEngine instance
-     * @throws IOException
+     * @throws IOException if SKOS engine can not be instantiated
      */
     public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI) throws IOException {
         return new SKOSEngineImpl(indexPath, filenameOrURI);
@@ -45,21 +46,22 @@ public class SKOSEngineFactory {
      * @param inputStream the input stream
      * @param lang the serialization format (N3, RDF/XML, TURTLE)
      * @return a new SKOSEngine instance
-     * @throws IOException
+     * @throws IOException if SKOS engine can not be instantiated
      */
     public static SKOSEngine getSKOSEngine(InputStream inputStream, String lang) throws IOException {
         return new SKOSEngineImpl(inputStream, lang);
     }
 
     /**
-     * Sets up a SKOS Engine from a given rdf file (serialized in any rdf
+     * Sets up a SKOS Engine from a given rdf file (serialized in any RDF
      * serialization format) and considers only those concept labels that are
      * defined in the language parameter
      *
+     * @param indexPath the index path
      * @param filenameOrURI the skos file
      * @param languages the languages to be considered
      * @return SKOSEngine
-     * @throws IOException
+     * @throws IOException if SKOS engine can not be instantiated
      */
     public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI, String... languages) throws IOException {
         return new SKOSEngineImpl(indexPath, filenameOrURI, languages);
@@ -74,7 +76,7 @@ public class SKOSEngineFactory {
      * @param format the serialization format (N3, RDF/XML, TURTLE)
      * @param languages the languages to be considered
      * @return a new SKOSEngine instance
-     * @throws IOException
+     * @throws IOException if SKOS engine can not be instantiated
      */
     public static SKOSEngine getSKOSEngine(InputStream inputStream, String format, String... languages) throws IOException {
         return new SKOSEngineImpl(inputStream, format, languages);

@@ -33,6 +33,7 @@ import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.CharsRef;
 
+import org.apache.lucene.util.CharsRefBuilder;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
@@ -66,22 +67,21 @@ public abstract class AbstractSKOSFilter extends TokenFilter {
      *
      * @param input the TokenStream
      * @param engine the engine delivering skos concepts
+     * @param analyzer the analyzer
      * @param types the skos types to expand to
      */
     public AbstractSKOSFilter(TokenStream input, SKOSEngine engine,
             Analyzer analyzer, SKOSType... types) {
         super(input);
-        termStack = new Stack<ExpandedTerm>();
+        termStack = new Stack<>();
         this.engine = engine;
         this.analyzer = analyzer;
-
         if (types != null && types.length > 0) {
-            this.types = new TreeSet<SKOSType>(Arrays.asList(types));
+            this.types = new TreeSet<>(Arrays.asList(types));
         } else {
-            this.types = new TreeSet<SKOSType>(Arrays.asList(new SKOSType[]{
+            this.types = new TreeSet<>(Arrays.asList(new SKOSType[]{
                         SKOSType.PREF, SKOSType.ALT}));
         }
-
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.posIncrAtt = addAttribute(PositionIncrementAttribute.class);
         this.payloadAtt = addAttribute(PayloadAttribute.class);
@@ -97,107 +97,65 @@ public abstract class AbstractSKOSFilter extends TokenFilter {
     public abstract boolean incrementToken() throws IOException;
 
     /**
-     * Replaces the current term (attributes) with term (attributes) from the
-     * stack
+     * Replaces the current term (attributes) with term (attributes) from the stack
      *
-     * @throws IOException
+     * @throws IOException if analyzer failed
      */
     protected void processTermOnStack() throws IOException {
         ExpandedTerm expandedTerm = termStack.pop();
-
         String term = expandedTerm.getTerm();
-
         SKOSType termType = expandedTerm.getTermType();
-
         String sTerm;
         try {
-            sTerm = analyze(analyzer, term, new CharsRef()).toString();
+            CharsRefBuilder builder = new CharsRefBuilder();
+            sTerm = analyze(analyzer, term, builder).toString();
         } catch (IllegalArgumentException e) {
             // skip this term
             return;
         }
-
-        /*
-         * copies the values of all attribute implementations from this state into
-         * the implementations of the target stream
-         */
+        // copies the values of all attribute implementations from this state into
+        // the implementations of the target stream
         restoreState(current);
-
-        /*
-         * Adds the expanded term to the term buffer
-         */
+        // adds the expanded term to the term buffer
         termAtt.setEmpty().append(sTerm);
-
-        /*
-         * set position increment to zero to put multiple terms into the same
-         * position
-         */
+        //set position increment to zero to put multiple terms into the same position
         posIncrAtt.setPositionIncrement(0);
-
-        /*
-         * sets the type of the expanded term (pref, alt, broader, narrower, etc.)
-         */
+        // sets the type of the expanded term (pref, alt, broader, narrower, etc.)
         skosAtt.setSkosType(termType);
-
-        /*
-         * converts the SKOS Attribute to a payload, which is propagated to the
-         * index
-         */
+        // converts the SKOS Attribute to a payload, which is propagated to the index
         byte[] bytes = PayloadHelper.encodeInt(skosAtt.getSkosType().ordinal());
         payloadAtt.setPayload(new BytesRef(bytes));
     }
 
-    /* Snipped from Solr's SynonymMap */
-    public static CharsRef analyze(Analyzer analyzer, String text, CharsRef reuse)
+    public static CharsRef analyze(Analyzer analyzer, String text, CharsRefBuilder buffer)
             throws IOException {
         TokenStream ts = analyzer.tokenStream("", new StringReader(text));
         CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
-        // PositionIncrementAttribute posIncAtt =
-        // ts.addAttribute(PositionIncrementAttribute.class);
         ts.reset();
-        reuse.length = 0;
         while (ts.incrementToken()) {
             int length = termAtt.length();
             if (length == 0) {
-                throw new IllegalArgumentException("term: " + text
-                        + " analyzed to a zero-length token");
+                throw new IllegalArgumentException("term: " + text + " analyzed to a zero-length token");
             }
-            // if (posIncAtt.getPositionIncrement() != 1) {
-            // throw new IllegalArgumentException("term: " + text +
-            // " analyzed to a token with posinc != 1");
-            // }
-            reuse.grow(reuse.length + length + 1); /* current + word + separator */
-            int end = reuse.offset + reuse.length;
-            if (reuse.length > 0) {
-                reuse.chars[end++] = 32; // space
-                reuse.length++;
+            if (buffer.length() > 0) {
+                buffer.append(' ');
             }
-            System.arraycopy(termAtt.buffer(), 0, reuse.chars, end, length);
-            reuse.length += length;
+            buffer.append(termAtt.buffer(), 0, length);
         }
         ts.end();
         ts.close();
-        if (reuse.length == 0) {
-            throw new IllegalArgumentException("term: " + text
-                    + " was completely eliminated by analyzer");
+        if (buffer.length() == 0) {
+            throw new IllegalArgumentException("term: " + text + " was completely eliminated by analyzer");
         }
-        return reuse;
+        return buffer.get();
     }
 
-    /**
-     * Pushes a given set of labels onto the stack
-     *
-     * @param labels
-     * @param type
-     */
     protected void pushLabelsToStack(String[] labels, SKOSType type) {
-
         if (labels != null) {
             for (String label : labels) {
                 termStack.push(new ExpandedTerm(label, type));
             }
         }
-
     }
 
     /**

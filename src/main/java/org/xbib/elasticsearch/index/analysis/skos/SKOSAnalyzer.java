@@ -33,7 +33,6 @@ import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
 import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
-import org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin;
 
 /**
  * An analyzer for expanding fields that contain either (i) URI references to
@@ -45,7 +44,6 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
      * The supported expansion types
      */
     public enum ExpansionType {
-
         URI, LABEL
     }
     /**
@@ -80,28 +78,25 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
      */
     public static final CharArraySet STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 
-    public SKOSAnalyzer(CharArraySet stopWords,
-            SKOSEngine skosEngine, ExpansionType expansionType) {
-        super(SKOSAnalysisPlugin.getLuceneVersion(), stopWords);
+    public SKOSAnalyzer(CharArraySet stopWords, SKOSEngine skosEngine, ExpansionType expansionType) {
+        super(stopWords);
         this.skosEngine = skosEngine;
         this.expansionType = expansionType;
     }
 
-    public SKOSAnalyzer(SKOSEngine skosEngine,
-            ExpansionType expansionType) {
+    public SKOSAnalyzer(SKOSEngine skosEngine, ExpansionType expansionType) {
         this(STOP_WORDS_SET, skosEngine, expansionType);
     }
 
-    public SKOSAnalyzer(Reader stopwords,
-            SKOSEngine skosEngine, ExpansionType expansionType) throws IOException {
-        this(loadStopwordSet(stopwords, SKOSAnalysisPlugin.getLuceneVersion()), skosEngine, expansionType);
+    public SKOSAnalyzer(Reader stopwords, SKOSEngine skosEngine, ExpansionType expansionType) throws IOException {
+        this(loadStopwordSet(stopwords), skosEngine, expansionType);
     }
 
     public SKOSAnalyzer(CharArraySet stopWords,
             String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize, String... languages)
             throws IOException {
-        super(SKOSAnalysisPlugin.getLuceneVersion(), stopWords);
+        super(stopWords);
         this.skosEngine = SKOSEngineFactory.getSKOSEngine(indexPath, skosFile, languages);
         this.expansionType = expansionType;
         this.bufferSize = bufferSize;
@@ -127,7 +122,7 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
             String indexPath, String skosFile,
             ExpansionType expansionType, int bufferSize, String... languages)
             throws IOException {
-        this(loadStopwordSet(stopwords, SKOSAnalysisPlugin.getLuceneVersion()), indexPath, skosFile,
+        this(loadStopwordSet(stopwords), indexPath, skosFile,
                 expansionType, bufferSize, languages);
     }
 
@@ -143,32 +138,33 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
      * Set maximum allowed token length. If a token is seen that exceeds this
      * length then it is discarded. This setting only takes effect the next time
      * tokenStream or tokenStream is called.
+     * @param length the length
      */
     public void setMaxTokenLength(int length) {
         maxTokenLength = length;
     }
 
     /**
+     * Get maximum token length
      * @see #setMaxTokenLength
+     * @return the maximum token length
      */
     public int getMaxTokenLength() {
         return maxTokenLength;
     }
 
     @Override
-    protected TokenStreamComponents createComponents(String fileName,
-            Reader reader) {
+    protected TokenStreamComponents createComponents(String fileName) {
         if (expansionType.equals(ExpansionType.URI)) {
-            final KeywordTokenizer src = new KeywordTokenizer(reader);
+            final KeywordTokenizer src = new KeywordTokenizer();
             TokenStream tok = new SKOSURIFilter(src, skosEngine, new StandardAnalyzer(), types);
             tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(src, tok);
         } else {
-            final StandardTokenizer src = new StandardTokenizer(reader);
+            final StandardTokenizer src = new StandardTokenizer();
             src.setMaxTokenLength(maxTokenLength);
             TokenStream tok = new StandardFilter(src);
-            // prior to this we get the classic behavior, standardfilter does it for
-            // us.
+            // prior to this we get the classic behavior, standardfilter does it for us.
             tok = new SKOSLabelFilter(tok, skosEngine, new StandardAnalyzer(), bufferSize, types);
             tok = new LowerCaseFilter(tok);
             tok = new StopFilter(tok, stopwords);
