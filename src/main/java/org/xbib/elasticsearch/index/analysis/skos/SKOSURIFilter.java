@@ -16,12 +16,13 @@
 package org.xbib.elasticsearch.index.analysis.skos;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSTypeAttribute.SKOSType;
 
 /**
  * A Lucene TokenFilter that supports URI-based term expansion as described in
@@ -35,7 +36,7 @@ import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttrib
 public final class SKOSURIFilter extends AbstractSKOSFilter {
 
     public SKOSURIFilter(TokenStream input, SKOSEngine skosEngine,
-            Analyzer analyzer, SKOSType... types) {
+            Analyzer analyzer, List<SKOSType> types) {
         super(input, skosEngine, analyzer, types);
     }
 
@@ -44,25 +45,20 @@ public final class SKOSURIFilter extends AbstractSKOSFilter {
      */
     @Override
     public boolean incrementToken() throws IOException {
-
         /* there are expanded terms for the given token */
         if (termStack.size() > 0) {
             processTermOnStack();
             return true;
         }
-
         /* no more tokens on the consumed stream -> end of stream */
         if (!input.incrementToken()) {
             return false;
         }
-
         /* check whether there are expanded terms for a given token */
         if (addTermsToStack(termAtt.toString())) {
-
             /* if yes, capture the state of all attributes */
             current = captureState();
         }
-
         return true;
     }
 
@@ -71,36 +67,24 @@ public final class SKOSURIFilter extends AbstractSKOSFilter {
      * @param term the given term
      * @return true if term stack is not empty
      */
-    public boolean addTermsToStack(String term) {
-        try {
-            if (types.contains(SKOSType.PREF)) {
-                String[] prefLabels = engine.getPrefLabels(term);
-                pushLabelsToStack(prefLabels, SKOSType.PREF);
-            }
-            if (types.contains(SKOSType.ALT)) {
-                String[] altLabels = engine.getAltLabels(term);
-                pushLabelsToStack(altLabels, SKOSType.ALT);
-            }
-            if (types.contains(SKOSType.BROADER)) {
-                String[] broaderLabels = engine.getBroaderLabels(term);
-                pushLabelsToStack(broaderLabels, SKOSType.BROADER);
-            }
-            if (types.contains(SKOSType.BROADERTRANSITIVE)) {
-                String[] broaderTransitiveLabels = engine
-                        .getBroaderTransitiveLabels(term);
-                pushLabelsToStack(broaderTransitiveLabels, SKOSType.BROADERTRANSITIVE);
-            }
-            if (types.contains(SKOSType.NARROWER)) {
-                String[] narrowerLabels = engine.getNarrowerLabels(term);
-                pushLabelsToStack(narrowerLabels, SKOSType.NARROWER);
-            }
-            if (types.contains(SKOSType.NARROWERTRANSITIVE)) {
-                String[] narrowerTransitiveLabels = engine
-                        .getNarrowerTransitiveLabels(term);
-                pushLabelsToStack(narrowerTransitiveLabels, SKOSType.NARROWERTRANSITIVE);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error when accessing SKOS Engine.\n" + e.getMessage());
+    public boolean addTermsToStack(String term) throws IOException {
+        if (types.contains(SKOSType.PREF)) {
+            pushLabelsToStack(engine.getPrefLabels(term), SKOSType.PREF);
+        }
+        if (types.contains(SKOSType.ALT)) {
+            pushLabelsToStack(engine.getAltLabels(term), SKOSType.ALT);
+        }
+        if (types.contains(SKOSType.BROADER)) {
+            pushLabelsToStack(engine.getBroaderLabels(term), SKOSType.BROADER);
+        }
+        if (types.contains(SKOSType.BROADERTRANSITIVE)) {
+            pushLabelsToStack(engine.getBroaderTransitiveLabels(term), SKOSType.BROADERTRANSITIVE);
+        }
+        if (types.contains(SKOSType.NARROWER)) {
+            pushLabelsToStack(engine.getNarrowerLabels(term), SKOSType.NARROWER);
+        }
+        if (types.contains(SKOSType.NARROWERTRANSITIVE)) {
+            pushLabelsToStack(engine.getNarrowerTransitiveLabels(term), SKOSType.NARROWERTRANSITIVE);
         }
         return !termStack.isEmpty();
     }

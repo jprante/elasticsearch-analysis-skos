@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.index.analysis.skos.test;
+package org.xbib.elasticsearch.index.analysis.skos.test.filter;
 
 import java.io.IOException;
 

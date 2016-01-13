@@ -1,6 +1,8 @@
 package org.xbib.elasticsearch;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.MockNode;
 import org.elasticsearch.node.Node;
@@ -18,6 +20,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class NodeTestUtils extends Assert {
+
+    private final static ESLogger logger = ESLoggerFactory.getLogger(NodeTestUtils.class.getName());
 
     private Node node;
     private Client client;
@@ -39,6 +43,7 @@ public class NodeTestUtils extends Assert {
         if (node != null) {
             node.close();
             deleteFiles();
+            logger.info("files wiped");
         }
     }
 

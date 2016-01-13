@@ -17,13 +17,14 @@ package org.xbib.elasticsearch.index.analysis.skos;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSTypeAttribute.SKOSType;
 
 /**
  * A Lucene TokenFilter that supports label-based term expansion as described in
@@ -54,7 +55,7 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
      * @param types the skos types to expand to
      */
     public SKOSLabelFilter(TokenStream input, SKOSEngine engine,
-            Analyzer analyzer, int bufferSize, SKOSTypeAttribute.SKOSType... types) {
+            Analyzer analyzer, int bufferSize, List<SKOSType> types) {
         super(input, engine, analyzer, types);
         this.bufferSize = bufferSize;
     }
@@ -64,7 +65,7 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
      */
     @Override
     public boolean incrementToken() throws IOException {
-        /* there are expanded terms for the given token */
+        // there are expanded terms for the given token
         if (termStack.size() > 0) {
             processTermOnStack();
             return true;
@@ -76,9 +77,9 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
             return false;
         }
         restoreState(buffer.peek());
-        /* check whether there are expanded terms for a given token */
+        // check whether there are expanded terms for a given token
         if (addAliasesToStack()) {
-            /* if yes, capture the state of all attributes */
+            // if yes, capture the state of all attributes
             current = captureState();
         }
         buffer.remove();
@@ -121,49 +122,32 @@ public final class SKOSLabelFilter extends AbstractSKOSFilter {
      * @param term the given term
      * @return true if term stack is not empty
      */
-    public boolean addTermsToStack(String term)  {
-        try {
-            String[] conceptURIs = engine.getConcepts(term);
-            for (String conceptURI : conceptURIs) {
-                if (types.contains(SKOSTypeAttribute.SKOSType.PREF)) {
-                    String[] prefLabels = engine.getPrefLabels(conceptURI);
-                    pushLabelsToStack(prefLabels, SKOSTypeAttribute.SKOSType.PREF);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.ALT)) {
-                    String[] altLabels = engine.getAltLabels(conceptURI);
-                    pushLabelsToStack(altLabels, SKOSTypeAttribute.SKOSType.ALT);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.HIDDEN)) {
-                    String[] hiddenLabels = engine.getHiddenLabels(conceptURI);
-                    pushLabelsToStack(hiddenLabels, SKOSTypeAttribute.SKOSType.HIDDEN);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.BROADER)) {
-                    String[] broaderLabels = engine.getBroaderLabels(conceptURI);
-                    pushLabelsToStack(broaderLabels, SKOSTypeAttribute.SKOSType.BROADER);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.BROADERTRANSITIVE)) {
-                    String[] broaderTransitiveLabels = engine
-                            .getBroaderTransitiveLabels(conceptURI);
-                    pushLabelsToStack(broaderTransitiveLabels, SKOSTypeAttribute.SKOSType.BROADERTRANSITIVE);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.NARROWER)) {
-                    String[] narrowerLabels = engine.getNarrowerLabels(conceptURI);
-                    pushLabelsToStack(narrowerLabels, SKOSTypeAttribute.SKOSType.NARROWER);
-                }
-                if (types.contains(SKOSTypeAttribute.SKOSType.NARROWERTRANSITIVE)) {
-                    String[] narrowerTransitiveLabels = engine
-                            .getNarrowerTransitiveLabels(conceptURI);
-                    pushLabelsToStack(narrowerTransitiveLabels,
-                            SKOSTypeAttribute.SKOSType.NARROWERTRANSITIVE);
-                }
+    public boolean addTermsToStack(String term) throws IOException {
+        List<String> conceptURIs = engine.getConcepts(term);
+        for (String conceptURI : conceptURIs) {
+            if (types.contains(SKOSType.PREF)) {
+                pushLabelsToStack(engine.getPrefLabels(conceptURI), SKOSType.PREF);
             }
-        } catch (Exception e) {
-            throw new RuntimeException("error when accessing SKOS engine: " + e.getMessage());
+            if (types.contains(SKOSType.ALT)) {
+                pushLabelsToStack(engine.getAltLabels(conceptURI), SKOSType.ALT);
+            }
+            if (types.contains(SKOSType.HIDDEN)) {
+                pushLabelsToStack(engine.getHiddenLabels(conceptURI), SKOSType.HIDDEN);
+            }
+            if (types.contains(SKOSType.BROADER)) {
+                pushLabelsToStack(engine.getBroaderLabels(conceptURI), SKOSType.BROADER);
+            }
+            if (types.contains(SKOSType.BROADERTRANSITIVE)) {
+                pushLabelsToStack(engine.getBroaderTransitiveLabels(conceptURI), SKOSType.BROADERTRANSITIVE);
+            }
+            if (types.contains(SKOSType.NARROWER)) {
+                pushLabelsToStack(engine.getNarrowerLabels(conceptURI), SKOSType.NARROWER);
+            }
+            if (types.contains(SKOSType.NARROWERTRANSITIVE)) {
+                pushLabelsToStack(engine.getNarrowerTransitiveLabels(conceptURI), SKOSType.NARROWERTRANSITIVE);
+            }
         }
         return !termStack.isEmpty();
     }
 
-    public int getBufferSize() {
-        return this.bufferSize;
-    }
 }

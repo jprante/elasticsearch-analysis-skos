@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.xbib.elasticsearch.index.analysis.skos.test;
+package org.xbib.elasticsearch.index.analysis.skos.test.filter;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -23,8 +23,7 @@ import org.apache.lucene.store.RAMDirectory;
 import org.junit.After;
 import org.junit.Before;
 import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalyzer;
-import org.xbib.elasticsearch.index.analysis.skos.engine.mock.SKOSEngineMock;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSTypeAttribute.SKOSType;
 
 /**
  * Abstract class containing common code for filter tests
@@ -48,30 +47,24 @@ public abstract class AbstractFilterTest {
         skosEngine = new SKOSEngineMock();
 
         skosEngine.addEntry("http://example.com/concept/1", SKOSType.PREF, "jumps");
-        skosEngine.addEntry("http://example.com/concept/1", SKOSType.ALT, "leaps",
-                "hops");
+        skosEngine.addEntry("http://example.com/concept/1", SKOSType.ALT, "leaps", "hops");
 
         skosEngine.addEntry("http://example.com/concept/2", SKOSType.PREF, "quick");
-        skosEngine.addEntry("http://example.com/concept/2", SKOSType.ALT, "fast",
-                "speedy");
+        skosEngine.addEntry("http://example.com/concept/2", SKOSType.ALT, "fast", "speedy");
 
         skosEngine.addEntry("http://example.com/concept/3", SKOSType.PREF, "over");
         skosEngine.addEntry("http://example.com/concept/3", SKOSType.ALT, "above");
 
         skosEngine.addEntry("http://example.com/concept/4", SKOSType.PREF, "lazy");
-        skosEngine.addEntry("http://example.com/concept/4", SKOSType.ALT,
-                "apathic", "sluggish");
+        skosEngine.addEntry("http://example.com/concept/4", SKOSType.ALT, "apathic", "sluggish");
 
         skosEngine.addEntry("http://example.com/concept/5", SKOSType.PREF, "dog");
-        skosEngine.addEntry("http://example.com/concept/5", SKOSType.ALT, "canine",
-                "pooch");
+        skosEngine.addEntry("http://example.com/concept/5", SKOSType.ALT, "canine", "pooch");
 
-        skosEngine.addEntry("http://example.com/concept/6", SKOSType.PREF,
-                "united nations");
+        skosEngine.addEntry("http://example.com/concept/6", SKOSType.PREF, "united nations");
         skosEngine.addEntry("http://example.com/concept/6", SKOSType.ALT, "UN");
 
-        skosEngine.addEntry("http://example.com/concept/7", SKOSType.PREF,
-                "lazy dog");
+        skosEngine.addEntry("http://example.com/concept/7", SKOSType.PREF, "lazy dog");
         skosEngine.addEntry("http://example.com/concept/7", SKOSType.ALT, "Odie");
 
         this.directory = new RAMDirectory();
@@ -80,14 +73,11 @@ public abstract class AbstractFilterTest {
 
     @After
     public void tearDown() throws Exception {
-
         if (writer != null) {
             writer.close();
         }
-
         if (searcher != null) {
             searcher.getIndexReader().close();
         }
-
     }
 }

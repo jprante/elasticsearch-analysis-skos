@@ -17,7 +17,11 @@ package org.xbib.elasticsearch.index.analysis.skos.engine;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.elasticsearch.client.Client;
 import org.xbib.elasticsearch.index.analysis.skos.engine.jena.SKOSEngineImpl;
 
 /**
@@ -25,31 +29,26 @@ import org.xbib.elasticsearch.index.analysis.skos.engine.jena.SKOSEngineImpl;
  */
 public class SKOSEngineFactory {
 
-    /**
-     * Sets up a SKOS Engine from a local rdf file (serialized in any rdf
-     * serialization format) or a remote rdf serialization identified by a URI
-     * and reachable via HTTP.
-     *
-     * @param indexPath the index path
-     * @param filenameOrURI the skos file
-     * @return a new SKOSEngine instance
-     * @throws IOException if SKOS engine can not be instantiated
-     */
-    public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI) throws IOException {
-        return new SKOSEngineImpl(indexPath, filenameOrURI);
-    }
+    private final static Map<String, SKOSEngine> cache = new HashMap<>();
 
     /**
      * Sets up a SKOS Engine from a given InputStream. The inputstream must
      * deliver data in a valid RDF serialization format.
      *
+     * @param client the Elasticsearch client
+     * @param indexName the index name
      * @param inputStream the input stream
      * @param lang the serialization format (N3, RDF/XML, TURTLE)
      * @return a new SKOSEngine instance
      * @throws IOException if SKOS engine can not be instantiated
      */
-    public static SKOSEngine getSKOSEngine(InputStream inputStream, String lang) throws IOException {
-        return new SKOSEngineImpl(inputStream, lang);
+    public static SKOSEngine getSKOSEngine(Client client, String indexName, InputStream inputStream, String lang) throws IOException {
+        if (cache.containsKey(indexName)) {
+            return cache.get(indexName);
+        }
+        SKOSEngine skosEngine = new SKOSEngineImpl(client, indexName, inputStream, lang);
+        cache.put(indexName, skosEngine);
+        return skosEngine;
     }
 
     /**
@@ -57,14 +56,20 @@ public class SKOSEngineFactory {
      * serialization format) and considers only those concept labels that are
      * defined in the language parameter
      *
-     * @param indexPath the index path
+     * @param client the Elasticsearch client
+     * @param indexName the index name
      * @param filenameOrURI the skos file
      * @param languages the languages to be considered
      * @return SKOSEngine
      * @throws IOException if SKOS engine can not be instantiated
      */
-    public static SKOSEngine getSKOSEngine(String indexPath, String filenameOrURI, String... languages) throws IOException {
-        return new SKOSEngineImpl(indexPath, filenameOrURI, languages);
+    public static SKOSEngine getSKOSEngine(Client client, String indexName, String filenameOrURI, List<String> languages) throws IOException {
+        if (cache.containsKey(indexName)) {
+            return cache.get(indexName);
+        }
+        SKOSEngine skosEngine = new SKOSEngineImpl(client, indexName, filenameOrURI, languages);
+        cache.put(indexName, skosEngine);
+        return skosEngine;
     }
 
 
@@ -72,13 +77,20 @@ public class SKOSEngineFactory {
      * Sets up a SKOS Engine from a given InputStream. The inputstream must
      * deliver data in a valid RDF serialization format.
      *
+     * @param client the Elasticsearch client
      * @param inputStream the input stream
+     * @param indexName the index name
      * @param format the serialization format (N3, RDF/XML, TURTLE)
      * @param languages the languages to be considered
      * @return a new SKOSEngine instance
      * @throws IOException if SKOS engine can not be instantiated
      */
-    public static SKOSEngine getSKOSEngine(InputStream inputStream, String format, String... languages) throws IOException {
-        return new SKOSEngineImpl(inputStream, format, languages);
+    public static SKOSEngine getSKOSEngine(Client client, String indexName, InputStream inputStream, String format, List<String> languages) throws IOException {
+        if (cache.containsKey(indexName)) {
+            return cache.get(indexName);
+        }
+        SKOSEngine skosEngine = new SKOSEngineImpl(client, indexName, inputStream, format, languages);
+        cache.put(indexName, skosEngine);
+        return skosEngine;
     }
 }

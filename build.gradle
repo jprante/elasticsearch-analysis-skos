@@ -1,6 +1,6 @@
 
 def xbibGroup = 'org.xbib.elasticsearch.plugin'
-def xbibVersion = '2.1.1.0'
+def xbibVersion = '2.1.1.1'
 
 group = xbibGroup
 version = xbibVersion
@@ -45,9 +45,9 @@ configurations {
         extendsFrom runtime
         exclude group: 'org.elasticsearch'
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-        exclude group: 'org.slf4j'
         exclude group: 'log4j'
         exclude group: 'commons-logging'
+        exclude group: 'org.slf4j', module: 'jcl-over-slf4j'
 
     }
     wagon
@@ -72,9 +72,9 @@ tasks.withType(JavaCompile) {
 }
 
 test {
-    systemProperties['path.home'] = System.getProperty("user.dir")
+    systemProperty 'path.home', projectDir.absolutePath + 'build'
     testLogging {
-        showStandardStreams = false
+        showStandardStreams = true
         exceptionFormat = 'full'
     }
 }
@@ -120,7 +120,7 @@ task integrationTest(type: Test, dependsOn: ['unpackPlugin']) {
     // without this trick to remove identical jars from classpath, an Elasticsearch bug whines about a "jar hell"
     classpath -= configurations.releaseJars
     outputs.upToDateWhen { false }
-    systemProperty 'path.home', projectDir.absolutePath
+    systemProperty 'path.home', projectDir.absolutePath + 'build'
     testLogging.showStandardStreams = false
 }
 
@@ -139,6 +139,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives sourcesJar
     archives buildPluginZip
+}
+
+clean {
+    delete "data"
 }
 
 uploadArchives {

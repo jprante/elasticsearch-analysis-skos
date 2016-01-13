@@ -17,6 +17,8 @@ package org.xbib.elasticsearch.index.analysis.skos;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
@@ -31,8 +33,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
-import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngineFactory;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSTypeAttribute.SKOSType;
 
 /**
  * An analyzer for expanding fields that contain either (i) URI references to
@@ -50,87 +51,56 @@ public class SKOSAnalyzer extends StopwordAnalyzerBase {
      * Default expansion type
      */
     public static final ExpansionType DEFAULT_EXPANSION_TYPE = ExpansionType.LABEL;
-    private ExpansionType expansionType = DEFAULT_EXPANSION_TYPE;
     /**
      * Default skos types to expand to
      */
-    public static final SKOSTypeAttribute.SKOSType[] DEFAULT_SKOS_TYPES = new SKOSTypeAttribute.SKOSType[]{
-        SKOSTypeAttribute.SKOSType.PREF, SKOSTypeAttribute.SKOSType.ALT, SKOSTypeAttribute.SKOSType.BROADER,
-        SKOSTypeAttribute.SKOSType.BROADERTRANSITIVE, SKOSTypeAttribute.SKOSType.NARROWER,
-        SKOSTypeAttribute.SKOSType.NARROWERTRANSITIVE};
-    private SKOSTypeAttribute.SKOSType[] types = DEFAULT_SKOS_TYPES;
+    public static final SKOSType[] DEFAULT_SKOS_TYPES = new SKOSType[]{
+            SKOSType.PREF,
+            SKOSType.ALT,
+            SKOSType.BROADER,
+            SKOSType.BROADERTRANSITIVE,
+            SKOSType.NARROWER,
+            SKOSType.NARROWERTRANSITIVE
+    };
+
+    private ExpansionType expansionType = DEFAULT_EXPANSION_TYPE;
+
+    private List<SKOSType> types = Arrays.asList(DEFAULT_SKOS_TYPES);
     /**
      * A SKOS Engine instance
      */
     private SKOSEngine skosEngine;
     /**
-     * The size of the buffer used for multi-term prediction
-     */
-    private int bufferSize = SKOSLabelFilter.DEFAULT_BUFFER_SIZE;
-    /**
      * Default maximum allowed token length
      */
     public static final int DEFAULT_MAX_TOKEN_LENGTH = 255;
+
     private int maxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
+
+    private int bufferSize;
     /**
      * An unmodifiable set containing some common English words that are usually
      * not useful for searching.
      */
     public static final CharArraySet STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 
-    public SKOSAnalyzer(CharArraySet stopWords, SKOSEngine skosEngine, ExpansionType expansionType) {
+    public SKOSAnalyzer(SKOSEngine skosEngine, ExpansionType expansionType) {
+        this(STOP_WORDS_SET, skosEngine, expansionType, 4, Arrays.asList(DEFAULT_SKOS_TYPES));
+    }
+
+    public SKOSAnalyzer(CharArraySet stopWords, SKOSEngine skosEngine, ExpansionType expansionType, int bufferSize, List<SKOSType> types) {
         super(stopWords);
         this.skosEngine = skosEngine;
         this.expansionType = expansionType;
-    }
-
-    public SKOSAnalyzer(SKOSEngine skosEngine, ExpansionType expansionType) {
-        this(STOP_WORDS_SET, skosEngine, expansionType);
-    }
-
-    public SKOSAnalyzer(Reader stopwords, SKOSEngine skosEngine, ExpansionType expansionType) throws IOException {
-        this(loadStopwordSet(stopwords), skosEngine, expansionType);
-    }
-
-    public SKOSAnalyzer(CharArraySet stopWords,
-            String indexPath, String skosFile,
-            ExpansionType expansionType, int bufferSize, String... languages)
-            throws IOException {
-        super(stopWords);
-        this.skosEngine = SKOSEngineFactory.getSKOSEngine(indexPath, skosFile, languages);
-        this.expansionType = expansionType;
         this.bufferSize = bufferSize;
+        this.types = types;
     }
 
-    public SKOSAnalyzer(String indexPath, String skosFile,
-            ExpansionType expansionType, int bufferSize, String... languages)
-            throws IOException {
-        this(STOP_WORDS_SET, indexPath,  skosFile, expansionType, bufferSize, languages);
-    }
-
-    public SKOSAnalyzer(String indexPath, String skosFile,
-            ExpansionType expansionType, int bufferSize) throws IOException {
-        this(indexPath, skosFile, expansionType, bufferSize, (String[]) null);
-    }
-
-    public SKOSAnalyzer(String indexPath, String skosFile,
-            ExpansionType expansionType) throws IOException {
-        this(indexPath, skosFile, expansionType, SKOSLabelFilter.DEFAULT_BUFFER_SIZE);
-    }
-
-    public SKOSAnalyzer(Reader stopwords,
-            String indexPath, String skosFile,
-            ExpansionType expansionType, int bufferSize, String... languages)
-            throws IOException {
-        this(loadStopwordSet(stopwords), indexPath, skosFile,
-                expansionType, bufferSize, languages);
-    }
-
-    public SKOSTypeAttribute.SKOSType[] getTypes() {
+    public List<SKOSType> getTypes() {
         return types;
     }
 
-    public void setTypes(SKOSTypeAttribute.SKOSType... types) {
+    public void setTypes(List<SKOSType> types) {
         this.types = types;
     }
 

@@ -18,6 +18,7 @@ package org.xbib.elasticsearch.index.analysis.skos;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -35,32 +36,33 @@ import org.apache.lucene.util.CharsRef;
 
 import org.apache.lucene.util.CharsRefBuilder;
 import org.xbib.elasticsearch.index.analysis.skos.engine.SKOSEngine;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute;
-import org.xbib.elasticsearch.index.analysis.skos.tokenattributes.SKOSTypeAttribute.SKOSType;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSTypeAttribute.SKOSType;
 
 /**
- * A SKOS-specific TokenFilter implementation
+ * Basic methods for SKOS-specific TokenFilter implementations
  */
 public abstract class AbstractSKOSFilter extends TokenFilter {
 
-    /* a stack holding the expanded terms for a token */
+    // a stack holding the expanded terms for a token
     protected Stack<ExpandedTerm> termStack;
-    /* an engine delivering SKOS concepts */
+    // an engine delivering SKOS concepts
     protected SKOSEngine engine;
-    /* the skos types to expand to */
+    // the skos types to expand to
     protected Set<SKOSType> types;
-    /* provides access to the the term attributes */
+    // provides access to the the term attributes
     protected AttributeSource.State current;
-    /* the term text (propagated to the index) */
+    // the term text (propagated to the index)
     protected final CharTermAttribute termAtt;
-    /* the token position relative to the previous token (propagated) */
+    // the token position relative to the previous token (propagated)
     protected final PositionIncrementAttribute posIncrAtt;
-    /* the binary payload attached to the indexed term (propagated to the index) */
+    // the binary payload attached to the indexed term (propagated to the index)
     protected final PayloadAttribute payloadAtt;
-    /* the SKOS-specific attribute attached to a term */
+    // the SKOS-specific attribute attached to a term
     protected final SKOSTypeAttribute skosAtt;
-    /* the analyzer to use when parsing */
+    // the analyzer to use when parsing
     protected final Analyzer analyzer;
+
+    private List<SKOSTypeAttribute.SKOSType> defaultTypes = Arrays.asList(SKOSAnalyzer.DEFAULT_SKOS_TYPES);
 
     /**
      * Constructor
@@ -70,18 +72,12 @@ public abstract class AbstractSKOSFilter extends TokenFilter {
      * @param analyzer the analyzer
      * @param types the skos types to expand to
      */
-    public AbstractSKOSFilter(TokenStream input, SKOSEngine engine,
-            Analyzer analyzer, SKOSType... types) {
+    public AbstractSKOSFilter(TokenStream input, SKOSEngine engine, Analyzer analyzer, List<SKOSType> types) {
         super(input);
         termStack = new Stack<>();
         this.engine = engine;
         this.analyzer = analyzer;
-        if (types != null && types.length > 0) {
-            this.types = new TreeSet<>(Arrays.asList(types));
-        } else {
-            this.types = new TreeSet<>(Arrays.asList(new SKOSType[]{
-                        SKOSType.PREF, SKOSType.ALT}));
-        }
+        this.types = new TreeSet<>(types != null && !types.isEmpty() ? types : defaultTypes);
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.posIncrAtt = addAttribute(PositionIncrementAttribute.class);
         this.payloadAtt = addAttribute(PayloadAttribute.class);
@@ -118,7 +114,7 @@ public abstract class AbstractSKOSFilter extends TokenFilter {
         restoreState(current);
         // adds the expanded term to the term buffer
         termAtt.setEmpty().append(sTerm);
-        //set position increment to zero to put multiple terms into the same position
+        // set position increment to zero to put multiple terms into the same position
         posIncrAtt.setPositionIncrement(0);
         // sets the type of the expanded term (pref, alt, broader, narrower, etc.)
         skosAtt.setSkosType(termType);
@@ -150,7 +146,7 @@ public abstract class AbstractSKOSFilter extends TokenFilter {
         return buffer.get();
     }
 
-    protected void pushLabelsToStack(String[] labels, SKOSType type) {
+    protected void pushLabelsToStack(List<String> labels, SKOSType type) {
         if (labels != null) {
             for (String label : labels) {
                 termStack.push(new ExpandedTerm(label, type));

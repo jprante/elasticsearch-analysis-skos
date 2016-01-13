@@ -43,7 +43,7 @@ Installation
 
 | Elasticsearch version    | Plugin      | Release date |
 | ------------------------ | ----------- | -------------|
-| 2.1.1                    | 2.1.1.0     | Jan  9, 2016 |
+| 2.1.1                    | 2.1.1.1     | Jan 13, 2016 |
 | 1.4.2                    | 1.4.2.0     | Feb  5, 2015 |
 
 2.x
@@ -105,7 +105,7 @@ you can use URI-based expansion like in this demonstration
 	            "filter": {
 	                "skosfilter" : {
 	                    "type": "skos",
-	                    "path" : "/tmp/indexdir/",
+	                    "indexName" : "ukat",
 	                    "skosFile": "ukat_examples.n3", 
 	                    "expansionType": "URI"
 	                }
@@ -125,7 +125,7 @@ you can use URI-based expansion like in this demonstration
 	       "properties" : {
 	         "subject" : {
 	           "type" : "string",
-	           "index_analyzer" : "skos",
+	           "analyzer" : "skos",
 	           "search_analyzer" : "standard"
 	         }
 	       }
@@ -146,7 +146,7 @@ you can use URI-based expansion like in this demonstration
 	# should give one hit
 	curl -XGET 'localhost:9200/test/_search?pretty' -d '{
 	      "query": {
-	            "text" : {
+	            "term" : {
 	                  "subject": "arms"
 	             }
 	      }
@@ -156,17 +156,27 @@ you can use URI-based expansion like in this demonstration
 	# should give one hit
 	curl -XGET 'localhost:9200/test/_search?pretty' -d '{
 	      "query": {
-	            "text" : {
+	            "term" : {
 	                  "subject": "weapons"
 	             }
 	      }
 	}'
 	echo
 
+    # should give one hit
+    curl -XGET 'localhost:9200/test/_search?pretty' -d '{
+          "query": {
+                "term" : {
+                      "subject": "military equipment"
+                 }
+          }
+    }'
+    echo
+
 	# should give no hit
 	curl -XGET 'localhost:9200/test/_search?pretty' -d '{
 	      "query": {
-	            "text" : {
+	            "term" : {
 	                  "subject": "nonsense"
 	             }
 	      }
@@ -178,11 +188,11 @@ Parameter overview
 
 The following settings parameters may be used in a filter of type *skos*
 
-	path - a path for SKOS index directory
+	indexName - a name for SKOS index
 
 	skosFile - the name of the skos file with suffix .n3, .rdf, .ttl, .zip (mandatory)
 
-	expansionType - wither URI or LABEL (mandatory)
+	expansionType - URI or LABEL (mandatory)
 
 	bufferSize - a buffer size for the number of words that will be checked for expansion
 

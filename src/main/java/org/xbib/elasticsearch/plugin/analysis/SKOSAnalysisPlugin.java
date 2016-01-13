@@ -3,7 +3,7 @@ package org.xbib.elasticsearch.plugin.analysis;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.plugins.Plugin;
 
-import org.xbib.elasticsearch.index.analysis.SKOSTokenFilterFactory;
+import org.xbib.elasticsearch.index.analysis.skos.SKOSAnalysisBinderProcessor;
 
 public class SKOSAnalysisPlugin extends Plugin {
 
@@ -18,7 +18,7 @@ public class SKOSAnalysisPlugin extends Plugin {
     }
 
     public void onModule(AnalysisModule module) {
-        module.addTokenFilter("skos", SKOSTokenFilterFactory.class);
+        module.addProcessor(new SKOSAnalysisBinderProcessor());
     }
 
 }
