@@ -1,18 +1,13 @@
 
-def xbibGroup = 'org.xbib.elasticsearch.plugin'
-def xbibVersion = '2.1.1.1'
-
-group = xbibGroup
-version = xbibVersion
-
-println "Current JVM: " + org.gradle.internal.jvm.Jvm.current()
+group = 'org.xbib.elasticsearch.plugin'
+version = '2.2.1.0'
 
 ext {
     pluginName = 'skos'
     pluginClassname = 'org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin'
     pluginDescription = 'SKOS plugin for Elasticsearch'
     versions = [
-            'elasticsearch' : '2.1.1'
+            'elasticsearch' : '2.2.1'
     ]
 }
 
