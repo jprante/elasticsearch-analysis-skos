@@ -1,13 +1,13 @@
 
 group = 'org.xbib.elasticsearch.plugin'
-version = '2.2.1.0'
+version = '2.3.0.0'
 
 ext {
     pluginName = 'skos'
     pluginClassname = 'org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin'
     pluginDescription = 'SKOS plugin for Elasticsearch'
     versions = [
-            'elasticsearch' : '2.2.1'
+            'elasticsearch' : '2.3.0'
     ]
 }
 

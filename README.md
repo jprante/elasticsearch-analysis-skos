@@ -43,6 +43,7 @@ Installation
 
 | Elasticsearch version    | Plugin      | Release date |
 | ------------------------ | ----------- | -------------|
+| 2.3.0                    | 2.3.0.0     | Apr  1, 2016 |
 | 2.2.1                    | 2.2.1.1     | Apr  1, 2016 |
 | 2.1.1                    | 2.1.1.1     | Jan 13, 2016 |
 | 1.4.2                    | 1.4.2.0     | Feb  5, 2015 |
@@ -50,7 +51,7 @@ Installation
 2.x
 ---
 
-    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/2.2.1.0/elasticsearch-analysis-skos-2.2.1.0-plugin.zip
+    ./bin/plugin install http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-analysis-skos/2.3.0.0/elasticsearch-analysis-skos-2.3.0.0-plugin.zip
 
 Do not forget to restart the node after installing.
 
