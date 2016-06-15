@@ -1,13 +1,13 @@
 
 group = 'org.xbib.elasticsearch.plugin'
-version = '2.3.0.0'
+version = '2.3.3.0'
 
 ext {
     pluginName = 'skos'
     pluginClassname = 'org.xbib.elasticsearch.plugin.analysis.SKOSAnalysisPlugin'
     pluginDescription = 'SKOS plugin for Elasticsearch'
     versions = [
-            'elasticsearch' : '2.3.0'
+            'elasticsearch' : '2.3.3'
     ]
 }
 
@@ -36,6 +36,9 @@ sourceSets {
 
 configurations {
     provided
+    wagon
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
     releaseJars {
         extendsFrom runtime
         exclude group: 'org.elasticsearch'
@@ -45,15 +48,13 @@ configurations {
         exclude group: 'org.slf4j', module: 'jcl-over-slf4j'
 
     }
-    wagon
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
 }
 
 dependencies {
     compile "org.elasticsearch:elasticsearch:${versions.elasticsearch}"
     compile "org.apache.jena:jena-arq:2.12.1"
     testCompile "junit:junit:4.12"
+    releaseJars "${project.group}:${project.name}:${project.version}"
     wagon 'org.apache.maven.wagon:wagon-ssh-external:2.10'
 }
 
@@ -93,7 +94,6 @@ task makePluginDescriptor(type: Copy) {
 }
 
 task buildPluginZip(type: Zip, dependsOn: [':jar', ':makePluginDescriptor']) {
-    from files(libsDir)
     from configurations.releaseJars
     from 'build/tmp/plugin'
     classifier = 'plugin'
@@ -101,7 +101,6 @@ task buildPluginZip(type: Zip, dependsOn: [':jar', ':makePluginDescriptor']) {
 
 task unpackPlugin(type: Copy, dependsOn: [':buildPluginZip']) {
     delete "plugins"
-    from files(libsDir)
     from configurations.releaseJars
     from 'build/tmp/plugin'
     into 'plugins/helper'
